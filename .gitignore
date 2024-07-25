@@ -1,0 +1,17 @@
+node_modules
+logs
+dist
+
+.majenv.json
+
+TODOs.txt
+
+server/analyser/analyser-local-*/
+
+/bin/proxinjector
+!/bin/proxinjector/README.md
+
+/config.json5
+/decode_pkg.py
+
+server/test-*.ts

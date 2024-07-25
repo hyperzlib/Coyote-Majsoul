@@ -1,0 +1,150 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/ConfigType",
+    "definitions": {
+        "ConfigType": {
+            "type": "object",
+            "properties": {
+                "coyote": {
+                    "$ref": "#/definitions/CoyoteGameConfig"
+                }
+            },
+            "required": [
+                "coyote"
+            ],
+            "additionalProperties": false
+        },
+        "CoyoteGameConfig": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/CoyoteGameConfigItem"
+            }
+        },
+        "CoyoteGameConfigItem": {
+            "type": "object",
+            "properties": {
+                "account_id": {
+                    "type": "number",
+                    "description": "雀魂账号ID（与雀魂昵称二选一）"
+                },
+                "nickname": {
+                    "type": "string",
+                    "description": "雀魂昵称"
+                },
+                "isMe": {
+                    "type": "boolean",
+                    "description": "使用当前用户"
+                },
+                "host": {
+                    "type": "string",
+                    "description": "控制器host"
+                },
+                "targetClientId": {
+                    "type": "string",
+                    "description": "控制器ClientID"
+                },
+                "mingpai": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "被吃碰杠时"
+                },
+                "dianpao": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "点炮时"
+                },
+                "biejiazimo": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "别家自摸时"
+                },
+                "biejializhi": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "别家立直时"
+                },
+                "liuju": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "流局（未听）"
+                },
+                "tingpailiuju": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "听牌流局"
+                },
+                "sanma": {
+                    "type": "object",
+                    "properties": {
+                        "no1": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "一位"
+                        },
+                        "no2": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "二位"
+                        },
+                        "no3": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "三位"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "description": "三麻"
+                },
+                "sima": {
+                    "type": "object",
+                    "properties": {
+                        "no1": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "一位"
+                        },
+                        "no2": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "二位"
+                        },
+                        "no3": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "三位"
+                        },
+                        "no4": {
+                            "$ref": "#/definitions/CoyoteAction",
+                            "description": "四位"
+                        }
+                    },
+                    "additionalProperties": false,
+                    "description": "四麻"
+                },
+                "jifei": {
+                    "$ref": "#/definitions/CoyoteAction",
+                    "description": "被飞"
+                }
+            },
+            "required": [
+                "host",
+                "targetClientId",
+                "sanma",
+                "sima"
+            ],
+            "additionalProperties": false
+        },
+        "CoyoteAction": {
+            "type": "object",
+            "properties": {
+                "addBase": {
+                    "type": "number"
+                },
+                "subBase": {
+                    "type": "number"
+                },
+                "addRandom": {
+                    "type": "number"
+                },
+                "subRandom": {
+                    "type": "number"
+                },
+                "fire": {
+                    "type": "number"
+                },
+                "time": {
+                    "type": "number"
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}
