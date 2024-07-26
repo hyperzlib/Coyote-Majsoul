@@ -1,0 +1,20 @@
+{
+  "include": [
+    "server/**/*.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "target": "ES2015",
+    "rootDir": "server",
+    "outDir": "dist-server",
+    "isolatedModules": true,
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "strictNullChecks": true
+  }
+}

@@ -5,6 +5,7 @@
   "scripts": {
     "build:user": "vite build && node scripts/build-user.js",
     "build:schema": "node cli/build-schema.js",
+    "build:server": "npm run build:schema && tsc -p tsconfig.node.json",
     "start": "ts-node server/index.ts"
   },
   "devDependencies": {
