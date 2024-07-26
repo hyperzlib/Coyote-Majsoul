@@ -13,6 +13,7 @@ export type MajsoulGameResult = {
 
 export type MajsoulGameEventListener = {
     (name: 'startGame', cb: (game: Game) => void): void;
+    (name: 'newRound', cb: () => void): void;
     (name: 'turn', cb: (seat: number) => void): void;
     (name: 'riichi', cb: (seat: number) => void): void;
     (name: 'mingpai', cb: (seat: number, targetSeat: number | null) => void): void;
@@ -110,6 +111,7 @@ export class MajsoulGameController {
                     switch (pkg.data.name) {
                         case 'ActionNewRound': // 新一局开始
                             this.clear();
+                            this.events.emit('newRound');
                             break;
                         case 'ActionDealTile': { // 摸牌
                             const data = pkg.data.data as unknown as ActionDealTile;

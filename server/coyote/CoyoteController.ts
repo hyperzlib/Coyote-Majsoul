@@ -4,6 +4,7 @@ import { MajsoulGameController, MajsoulGameResult } from "../gameRecords/Majsoul
 import logger from "../logger";
 import { EventStore } from "../utils/EventStore";
 import { CoyoteAction, CoyoteGameConfig, CoyoteGameConfigItem } from "../types/CoyoteGameConfig";
+import { asleep } from "../utils/helper";
 
 export interface GameStrengthConfig {
     strength: number;
@@ -58,8 +59,11 @@ export class CoyoteController {
     private majsoulGame: MajsoulGameController;
     private config!: CoyoteGameConfigItem;
 
+    private isRiichi: boolean = false;
+    private isRon: boolean = false;
+
     // 一键开火强度
-    public fireDeltaStrength: number = 0;
+    public fireStrength: number = 0;
 
     // 一键开火结束时间
     public fireEndTime: number = -1;
@@ -94,6 +98,12 @@ export class CoyoteController {
 
     private bindEvents() {
         const majsoulGameEvents = this.eventStore.wrap(this.majsoulGame);
+
+        majsoulGameEvents.on('newRound', () => {
+            this.isRiichi = false;
+            this.isRon = false; 
+        });
+
         majsoulGameEvents.on('mingpai', (seat, targetSeat) => {
             if (seat !== this.targetPlayer.seat && targetSeat === this.targetPlayer.seat) {
                 // 被吃碰杠
@@ -104,8 +114,10 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('riichi', (seat) => {
-            if (seat !== this.targetPlayer.seat) {
-                // 立直
+            if (seat === this.targetPlayer.seat) {
+                // 自家立直
+                this.isRiichi = true;
+            } else if (!this.isRiichi) {
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.biejializhi);
                 }, 1000); // 延迟1s后更改强度
@@ -113,7 +125,10 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('ron', (seat, targetSeat) => {
-            if (seat !== this.targetPlayer.seat && targetSeat === this.targetPlayer.seat) {
+            if (seat === this.targetPlayer.seat) {
+                // 自家和牌
+                this.isRon = true;
+            } else if (!this.isRon && targetSeat === this.targetPlayer.seat) {
                 // 点炮
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.dianpao);
@@ -122,7 +137,10 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('zumo', (seat) => {
-            if (seat !== this.targetPlayer.seat) {
+            if (seat === this.targetPlayer.seat) {
+                // 自摸
+                this.isRon = true;
+            } else if (!this.isRon) {
                 // 别家自摸
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.biejiazimo);
@@ -183,39 +201,49 @@ export class CoyoteController {
 
     private async callCoyoteGameApi(request: SetStrengthConfigRequest): Promise<string | undefined> {
         let url = `${this.config.host}/api/game/${this.config.targetClientId}/strength_config`;
-        try {
-            const res = await got.post(url, {
-                json: request,
-            }).json<SetStrengthConfigResponse>();
+        for (let i = 0; i < 3; i ++) {
+            try {
+                const res = await got.post(url, {
+                    json: request,
+                }).json<SetStrengthConfigResponse>();
 
-            if (res.status !== 1) {
-                logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${res.message}`);
-            }
+                if (res.status !== 1) {
+                    logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${res.message}`);
+                }
 
-            return res.successClientIds[0];
-        } catch (err: any) {
-            logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${err.message}`);
-            if (err.response) {
-                logger.error('Response: ', err.response.body);
+                return res.successClientIds[0];
+            } catch (err: any) {
+                logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${err.message}`);
+                if (err.response) {
+                    logger.error('Response: ', err.response.body);
+                }
+
+                await asleep(200);
             }
         }
+
+        logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${url}`);
     }
 
     private async getStrengthConfig(): Promise<GameStrengthConfig | undefined> {
         let url = `${this.config.host}/api/game/${this.config.targetClientId}/strength_config`;
-        try {
-            const res = await got.get(url).json<GetStrengthConfigResponse>();
-            if (res.status !== 1) {
-                logger.error(`[CoyoteController] 获取强度配置失败: ${res.message}`);
-            }
+        for (let i = 0; i < 3; i ++) {
+            try {
+                const res = await got.get(url).json<GetStrengthConfigResponse>();
+                if (res.status !== 1) {
+                    logger.error(`[CoyoteController] 获取强度配置失败: ${res.message}`);
+                }
 
-            return res.strengthConfig;
-        } catch (err: any) {
-            logger.error(`[CoyoteController] 获取强度配置失败: ${err.message}`);
-            if (err.response) {
-                logger.error('Response: ', err.response.body);
+                return res.strengthConfig;
+            } catch (err: any) {
+                logger.error(`[CoyoteController] 获取强度配置失败: ${err.message}`);
+                if (err.response) {
+                    logger.error('Response: ', err.response.body);
+                }
             }
         }
+
+        logger.error(`[CoyoteController] 获取强度配置失败: ${url}`);
     }
 
     private async doFireAction(action: CoyoteAction) {
@@ -231,31 +259,35 @@ export class CoyoteController {
         let remoteConfig: GameStrengthConfig | undefined = await this.getStrengthConfig();
         if (!remoteConfig) {
             logger.error('获取强度配置失败');
-            this.fireDeltaStrength = 0;
+            this.fireStrength = 0;
             return;
         }
 
         let remoteStrength = remoteConfig.strength;
-        let addStrength = Math.max(this.fireDeltaStrength, action.fire!);
-        this.fireDeltaStrength = addStrength;
+        /** 同时多次一键开火，取最大的电量 */
+        let maxFireStrength = Math.max(this.fireStrength, action.fire!);
+        /** 增加的电量 */
+        let addStrength = maxFireStrength - this.fireStrength;
         
-        logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 一键开火强度：${addStrength}`);
+        if (addStrength > 0) {
+            logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 一键开火强度：${addStrength}`);
 
-        await this.callCoyoteGameApi({
-            strength: {
-                add: addStrength,
-            },
-        });
+            await this.callCoyoteGameApi({
+                strength: {
+                    add: addStrength,
+                },
+            });
 
-        remoteConfig = await this.getStrengthConfig();
-        if (!remoteConfig) {
-            logger.error('获取强度配置失败');
-            return;
+            remoteConfig = await this.getStrengthConfig();
+            if (!remoteConfig) {
+                logger.error('获取强度配置失败');
+                return;
+            }
+
+            // 计算真实的增加强度
+            let realAddStrength = remoteConfig.strength - remoteStrength;
+            this.fireStrength += realAddStrength;
         }
-
-        // 计算真实的增加强度
-        console.log(remoteConfig.strength, remoteStrength);
-        this.fireDeltaStrength = remoteConfig.strength - remoteStrength;
     }
 
     private fireTaskHandler() {
@@ -263,14 +295,14 @@ export class CoyoteController {
         if (this.fireEndTime < currentTime) {
             // 结束一键开火
             logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 一键开火结束`);
-            if (this.fireDeltaStrength > 0) {
+            if (this.fireStrength > 0) {
                 this.callCoyoteGameApi({
                     strength: {
-                        sub: this.fireDeltaStrength,
+                        sub: this.fireStrength,
                     },
                 });
             }
-            this.fireDeltaStrength = 0;
+            this.fireStrength = 0;
             if (this.fireTask) {
                 clearInterval(this.fireTask);
                 this.fireTask = null;

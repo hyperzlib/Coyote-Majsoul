@@ -1,22 +1,20 @@
-import { spawn, exec } from 'child_process';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { existsSync } from 'fs';
 import logger from '../logger';
-
-function asleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+import { asleep } from '../utils/helper';
 
 const INJECTOR_EXE = 'bin/proxinjector/proxinjector-cli.exe';
+const START_IN_NEW_CONSOLE = false;
 
 export class ProxyInjector {
     public proxyAddr: string;
-    public targetProcNames: string;
+    public targetProcName: string;
 
     private taskRunning: boolean = true;
 
     public constructor(proxyAddr: string, targetProcName: string) {
         this.proxyAddr = proxyAddr;
-        this.targetProcNames = targetProcName;
+        this.targetProcName = targetProcName;
     }
 
     public async run() {
@@ -35,7 +33,7 @@ export class ProxyInjector {
         let oldProcRunning = false
         while (this.taskRunning) {
             try {
-                let procRunning = await this.detectProcRunning();
+                let procRunning = await this.detectProcRunning(this.targetProcName);
 
                 if (procRunning && !oldProcRunning) {
                     await this.inject();
@@ -51,12 +49,12 @@ export class ProxyInjector {
         }
     }
 
-    public detectProcRunning() {
+    public detectProcRunning(targetProcName: string) {
         return new Promise<boolean>((resolve) => {
-            const proc = spawn('tasklist', ['/FO', 'CSV', '/NH', '/FI', `IMAGENAME eq ${this.targetProcNames}.exe`])
+            const proc = spawn('tasklist', ['/FO', 'CSV', '/NH', '/FI', `IMAGENAME eq ${targetProcName}.exe`])
             proc.on('exit', (code) => {
                 const output = proc.stdout.read().toString();
-                if (output.includes(this.targetProcNames)) {
+                if (output.includes(targetProcName)) {
                     resolve(true);
                 } else {
                     resolve(false);
@@ -65,12 +63,20 @@ export class ProxyInjector {
         });
     }
 
-    public inject() {
-        return new Promise<void>((resolve, reject) => {
-            const proc = spawn(INJECTOR_EXE, ['-p', this.proxyAddr, '-n', this.targetProcNames, '-s'], {
+    public async inject() {
+        let proc: ChildProcessWithoutNullStreams;
+        
+        if (START_IN_NEW_CONSOLE) {
+            proc = spawn('cmd', ['/c', 'start', INJECTOR_EXE, '-p', this.proxyAddr, '-n', this.targetProcName, '-s'], {
                 stdio: 'pipe'
             });
+        } else {
+            proc = spawn(INJECTOR_EXE, ['-p', this.proxyAddr, '-n', this.targetProcName, '-s'], {
+                stdio: 'pipe'
+            });
+        }
 
+        await new Promise<void>((resolve, reject) => {
             proc.on('spawn', () => {
                 logger.info('<ProxyInjector> 代理注入成功');
             });
