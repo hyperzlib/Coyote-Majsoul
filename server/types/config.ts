@@ -1,4 +1,4 @@
-import { CoyoteGameConfig } from "../coyote/CoyoteController";
+import { CoyoteGameConfig } from "./CoyoteGameConfig";
 
 export type ConfigType = {
     coyote: CoyoteGameConfig,

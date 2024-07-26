@@ -39,17 +39,22 @@ async function buildSchemas() {
                 }
             }
 
+            let startTime = Date.now();
+
             // 生成schema
             let schemaConfig = {
                 path: file,
                 type: typeName,
-                tsconfig: './tsconfig.json',
+                tsconfig: './tsconfig.schema.json',
+
             };
             let schema = tsj.createGenerator(schemaConfig).createSchema(schemaConfig.type);
             let schemaJson = JSON.stringify(schema, null, 4);
             await fs.promises.writeFile(schemaFile, schemaJson);
 
-            console.log(`Generated schema for ${typeName}`);
+            let endTime = Date.now();
+
+            console.log(`Generated schema for ${typeName} (${endTime - startTime}ms)`);
 
             // 更新meta
             const fileMd5 = await md5File(file);

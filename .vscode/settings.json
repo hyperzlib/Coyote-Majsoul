@@ -1,0 +1,12 @@
+{
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "config.json",
+                "config.json5",
+                "config-example.json5"
+            ],
+            "url": "./server/schemas/ConfigType.json"
+        }
+    ]
+}

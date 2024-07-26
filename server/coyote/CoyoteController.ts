@@ -3,6 +3,7 @@ import { GamePlayerInfo } from "../gameRecords/Game";
 import { MajsoulGameController, MajsoulGameResult } from "../gameRecords/MajsoulGameController";
 import logger from "../logger";
 import { EventStore } from "../utils/EventStore";
+import { CoyoteAction, CoyoteGameConfig, CoyoteGameConfigItem } from "../types/CoyoteGameConfig";
 
 export interface GameStrengthConfig {
     strength: number;
@@ -49,64 +50,6 @@ export type GetStrengthConfigResponse = {
     message: string,
     strengthConfig?: GameStrengthConfig,
 }
-
-export type CoyoteAction = {
-    addBase?: number,
-    subBase?: number,
-    addRandom?: number,
-    subRandom?: number,
-    fire?: number,
-    time?: number,
-}
-
-export type CoyoteGameConfigItem = {
-    /** 雀魂账号ID（与雀魂昵称二选一） */
-    account_id?: number,
-    /** 雀魂昵称 */
-    nickname?: string,
-    /** 使用当前用户 */
-    isMe?: boolean,
-    /** 控制器host */
-    host: string,
-    /** 控制器ClientID */
-    targetClientId: string,
-    /** 被吃碰杠时 */
-    mingpai?: CoyoteAction,
-    /** 点炮时 */
-    dianpao?: CoyoteAction,
-    /** 别家自摸时 */
-    biejiazimo?: CoyoteAction,
-    /** 别家立直时 */
-    biejializhi?: CoyoteAction,
-    /** 流局（未听） */
-    liuju?: CoyoteAction,
-    /** 听牌流局 */
-    tingpailiuju?: CoyoteAction,
-    /** 三麻 */
-    sanma: {
-        /** 一位 */
-        no1?: CoyoteAction,
-        /** 二位 */
-        no2?: CoyoteAction,
-        /** 三位 */
-        no3?: CoyoteAction,
-    },
-    /** 四麻 */
-    sima: {
-        /** 一位 */
-        no1?: CoyoteAction,
-        /** 二位 */
-        no2?: CoyoteAction,
-        /** 三位 */
-        no3?: CoyoteAction,
-        /** 四位 */
-        no4?: CoyoteAction,
-    },
-    /** 被飞 */
-    jifei?: CoyoteAction,
-}
-
-export type CoyoteGameConfig = CoyoteGameConfigItem[];
 
 export class CoyoteController {
     private targetPlayer: GamePlayerInfo;
@@ -202,7 +145,7 @@ export class CoyoteController {
         });
     }
 
-    private doCoyoteAction(action?: CoyoteAction) {
+    private doCoyoteAction(action?: CoyoteAction | null) {
         if (!action) return;
 
         if (typeof action.addBase === 'number') {

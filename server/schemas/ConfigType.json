@@ -24,15 +24,24 @@
             "type": "object",
             "properties": {
                 "account_id": {
-                    "type": "number",
+                    "type": [
+                        "number",
+                        "null"
+                    ],
                     "description": "雀魂账号ID（与雀魂昵称二选一）"
                 },
                 "nickname": {
-                    "type": "string",
+                    "type": [
+                        "string",
+                        "null"
+                    ],
                     "description": "雀魂昵称"
                 },
                 "isMe": {
-                    "type": "boolean",
+                    "type": [
+                        "boolean",
+                        "null"
+                    ],
                     "description": "使用当前用户"
                 },
                 "host": {
@@ -44,42 +53,105 @@
                     "description": "控制器ClientID"
                 },
                 "mingpai": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "被吃碰杠时"
                 },
                 "dianpao": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "点炮时"
                 },
                 "biejiazimo": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "别家自摸时"
                 },
                 "biejializhi": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "别家立直时"
                 },
                 "liuju": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "流局（未听）"
                 },
                 "tingpailiuju": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "听牌流局"
                 },
                 "sanma": {
                     "type": "object",
                     "properties": {
                         "no1": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "一位"
                         },
                         "no2": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "二位"
                         },
                         "no3": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "三位"
                         }
                     },
@@ -90,19 +162,47 @@
                     "type": "object",
                     "properties": {
                         "no1": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "一位"
                         },
                         "no2": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "二位"
                         },
                         "no3": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "三位"
                         },
                         "no4": {
-                            "$ref": "#/definitions/CoyoteAction",
+                            "anyOf": [
+                                {
+                                    "$ref": "#/definitions/CoyoteAction"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
                             "description": "四位"
                         }
                     },
@@ -110,7 +210,14 @@
                     "description": "四麻"
                 },
                 "jifei": {
-                    "$ref": "#/definitions/CoyoteAction",
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
                     "description": "被飞"
                 }
             },
