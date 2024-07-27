@@ -19,7 +19,7 @@ if (!existsSync('config.json5')) {
 
 const config = new ReactiveConfig<ConfigType>('config.json5', {
   coyote: []
-})
+}, { autoInit: false })
 
 config.setLoadFilter((value: any) => {
   if (!validator.validateConfig(value)) {

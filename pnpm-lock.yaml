@@ -17,6 +17,9 @@ importers:
       '@pondwader/socks5-server':
         specifier: ^1.0.10
         version: 1.0.10
+      '@types/tampermonkey':
+        specifier: ^5.0.3
+        version: 5.0.3
       '@ungap/structured-clone':
         specifier: ^1.2.0
         version: 1.2.0
@@ -1081,6 +1084,9 @@ packages:
 
   '@types/source-list-map@0.1.6':
     resolution: {integrity: sha512-5JcVt1u5HDmlXkwOD2nslZVllBBc7HDuOICfiZah2Z0is8M8g+ddAEawbmd3VjedfDHBzxCaXLs07QEmb7y54g==}
+
+  '@types/tampermonkey@5.0.3':
+    resolution: {integrity: sha512-i8+x8ipoib8xAfho25oNTbILgrO665oxq5tNr3LvH5DaW5UOPsc88Fe1mTVTDwsux5LYOcd8Syb6q+s95x878Q==}
 
   '@types/tapable@1.0.12':
     resolution: {integrity: sha512-bTHG8fcxEqv1M9+TD14P8ok8hjxoOCkfKc8XXLaaD05kI7ohpeI956jtDOD3XHKBQrlyPughUtzm1jtVhHpA5Q==}
@@ -7577,6 +7583,8 @@ snapshots:
       '@types/node': 20.14.11
 
   '@types/source-list-map@0.1.6': {}
+
+  '@types/tampermonkey@5.0.3': {}
 
   '@types/tapable@1.0.12': {}
 

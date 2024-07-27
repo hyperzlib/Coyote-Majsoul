@@ -85,7 +85,8 @@ export class CoyoteController {
     public setConfig(config: CoyoteGameConfig) {
         const currentConfig = config.find((item) => {
             return item.account_id === this.targetPlayer.account_id ||
-                item.nickname === this.targetPlayer.nickname
+                item.nickname === this.targetPlayer.nickname ||
+                item.isMe && this.targetPlayer.isMe;
         });
         if (!currentConfig) {
             logger.error(`未找到 ${this.targetPlayer.nickname} 的配置`);

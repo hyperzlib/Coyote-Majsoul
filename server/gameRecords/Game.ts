@@ -2,6 +2,7 @@ export interface GamePlayerInfo {
   account_id: number,
   nickname: string,
   seat: number,
+  isMe?: boolean,
 };
 
 export interface GameConstructorOptions {
@@ -22,6 +23,7 @@ export class Game {
         account_id: player.account_id,
         nickname: player.nickname,
         seat: seatList.indexOf(player.account_id),
+        isMe: player.account_id === meAccountId,
       }
     });
 
