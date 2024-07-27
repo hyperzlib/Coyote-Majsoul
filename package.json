@@ -35,6 +35,7 @@
     "winston": "^3.10.0"
   },
   "dependencies": {
+    "@hyperzlib/node-reactive-config": "^1.0.1",
     "@lemonce3/mitm": "^0.8.2",
     "@pondwader/socks5-server": "^1.0.10",
     "@ungap/structured-clone": "^1.2.0",

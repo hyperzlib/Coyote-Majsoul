@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@hyperzlib/node-reactive-config':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@lemonce3/mitm':
         specifier: ^0.8.2
         version: 0.8.2
@@ -812,6 +815,9 @@ packages:
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
+
+  '@hyperzlib/node-reactive-config@1.0.1':
+    resolution: {integrity: sha512-uQ5LjaxJ3SoZxCVp75q23pw5DhKv/2hyOORstcomt4u8U7pFKdFpDvsW+pnSwc/6M0kX2dLst26hXikzZm+c3w==}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -7263,6 +7269,10 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
+  '@hyperzlib/node-reactive-config@1.0.1':
+    dependencies:
+      chokidar: 3.6.0
+
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -8551,8 +8561,7 @@ snapshots:
 
   binary-extensions@1.13.1: {}
 
-  binary-extensions@2.3.0:
-    optional: true
+  binary-extensions@2.3.0: {}
 
   bindings@1.5.0:
     dependencies:
@@ -8879,7 +8888,6 @@ snapshots:
       readdirp: 3.6.0
     optionalDependencies:
       fsevents: 2.3.3
-    optional: true
 
   chownr@1.1.4: {}
 
@@ -10906,7 +10914,6 @@ snapshots:
   is-binary-path@2.1.0:
     dependencies:
       binary-extensions: 2.3.0
-    optional: true
 
   is-boolean-object@1.1.2:
     dependencies:
@@ -12365,7 +12372,6 @@ snapshots:
   readdirp@3.6.0:
     dependencies:
       picomatch: 2.3.1
-    optional: true
 
   reduce@1.0.3:
     dependencies:
