@@ -15,7 +15,7 @@ if (window.location.host === 'game.maj-soul.com') {
     if (!url.includes('/game-gateway')) { return data }
     try {
       const req = new XMLHttpRequest()
-      req.open('POST', `${serverURL}?msg=req&meID=${window?.GameMgr?.Inst?.account_data?.account_id ?? ''}&game=majsoul`)
+      req.open('POST', `${serverURL}api/event?msg=req&meID=${window?.GameMgr?.Inst?.account_data?.account_id ?? ''}&game=majsoul`)
       req.send(data)
     } catch (err) {
       console.error(err)
@@ -32,7 +32,7 @@ if (window.location.host === 'game.maj-soul.com') {
       const h = (window.layaCanvas.height ?? 0) / window.devicePixelRatio
       const dpi = window.devicePixelRatio
       const req = new XMLHttpRequest()
-      req.open('POST', `${serverURL}?msg=res&meID=${window?.GameMgr?.Inst?.account_data?.account_id ?? ''}&game=majsoul`)
+      req.open('POST', `${serverURL}api/event?msg=res&meID=${window?.GameMgr?.Inst?.account_data?.account_id ?? ''}&game=majsoul`)
       req.send(binaryMsg)
     } catch (err) {
       console.error(err)

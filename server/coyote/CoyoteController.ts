@@ -84,7 +84,7 @@ export class CoyoteController {
 
     public setConfig(config: CoyoteGameConfig) {
         const currentConfig = config.find((item) => {
-            return item.account_id === this.targetPlayer.account_id ||
+            return item.accountId === this.targetPlayer.account_id ||
                 item.nickname === this.targetPlayer.nickname ||
                 item.isMe && this.targetPlayer.isMe;
         });
@@ -201,7 +201,7 @@ export class CoyoteController {
     }
 
     private async callCoyoteGameApi(request: SetStrengthConfigRequest): Promise<string | undefined> {
-        let url = `${this.config.host}/api/game/${this.config.targetClientId}/strength_config`;
+        let url = `${this.config.controllerUrl}/api/game/${this.config.targetClientId}/strength_config`;
         for (let i = 0; i < 3; i ++) {
             try {
                 const res = await got.post(url, {
@@ -227,7 +227,7 @@ export class CoyoteController {
     }
 
     private async getStrengthConfig(): Promise<GameStrengthConfig | undefined> {
-        let url = `${this.config.host}/api/game/${this.config.targetClientId}/strength_config`;
+        let url = `${this.config.controllerUrl}/api/game/${this.config.targetClientId}/strength_config`;
         for (let i = 0; i < 3; i ++) {
             try {
                 const res = await got.get(url).json<GetStrengthConfigResponse>();

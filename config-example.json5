@@ -2,13 +2,13 @@
     coyote: [
         {
             /** 雀魂账号ID（与雀魂昵称二选一） */
-            // account_id: 114514,
+            // accountId: 114514,
             /** 雀魂昵称 */
             // nickname: "田所浩二",
             /** 使用当前用户 */
             isMe: true,
-            /** 控制器host */
-            host: "http://127.0.0.1:8920",
+            /** 战败惩罚控制器URL */
+            controllerUrl: "http://127.0.0.1:8920",
             /** 控制器ClientID */
             targetClientId: "all",
             /** 被吃碰杠时 */

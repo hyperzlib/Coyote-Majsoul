@@ -8,5 +8,6 @@
             ],
             "url": "./server/schemas/ConfigType.json"
         }
-    ]
+    ],
+    "typescript.tsdk": "node_modules\\typescript\\lib"
 }

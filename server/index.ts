@@ -41,15 +41,15 @@ function initCoyoteGame(game: Game) {
   let createdAccountIds = new Set<number>()
   config.value.coyote.forEach((item) => {
     let player: GamePlayerInfo | undefined = undefined
-    if (item.account_id) {
-      player = game.getPlayerByAccountId(item.account_id)
+    if (item.accountId) {
+      player = game.getPlayerByAccountId(item.accountId)
     } else if (item.nickname) {
       player = game.getPlayerByNickname(item.nickname)
     } else if (item.isMe) {
       const meSeat = game.meSeat
       player = game.getPlayerBySeat(meSeat)
       if (player) {
-        item.account_id = player.account_id // 为了让CoyoteController能够正确识别当前用户
+        item.accountId = player.account_id // 为了让CoyoteController能够正确识别当前用户
       }
     }
 
@@ -106,7 +106,7 @@ mitmServer.on('response', (data, meId) => {
   majsoulGame.onResPackage(data, meId)
 })
 
-router.post('/', async function (ctx, next) {
+router.post('/api/event', async function (ctx, next) {
   const params: Buffer[] = []
   await msgQueue.add(new Promise<void>((resolve, reject) => {
     ctx.req.on('data', (chunk: Buffer) => {

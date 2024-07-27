@@ -15,3 +15,4 @@ let content = fs.readFileSync(targetFile, 'utf-8');
 content = tampermonkeyHeader + content;
 
 console.log('Writing tampermonkey script to ' + targetFile);
+fs.writeFileSync(targetFile, content, 'utf-8');
