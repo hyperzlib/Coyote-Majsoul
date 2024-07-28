@@ -1,4 +1,9 @@
-# Coyote-Majsoul 雀魂自动开电
+<h1 align="center"> Coyote-Majsoul 雀魂自动开电</h1>
+<div align="center">
+  <a href="https://github.com/hyperzlib/Coyote-Majsoul/actions"><img src="https://img.shields.io/github/actions/workflow/status/hyperzlib/Coyote-Majsoul/build-pkg.yml"></a>
+  <a href="https://github.com/hyperzlib/Coyote-Majsoul/releases"><img src="https://img.shields.io/github/release-date/hyperzlib/Coyote-Majsoul"></a>
+  <a href="https://github.com/hyperzlib/Coyote-Majsoul/commits/main/"><img src="https://img.shields.io/github/last-commit/hyperzlib/Coyote-Majsoul"></a>
+</div>
 
 ## 介绍
 
@@ -15,7 +20,9 @@
 
 如果需要在网页版雀魂中使用，请安装 **[Tampermonkey](https://www.tampermonkey.net/)** 插件，然后 **[点击这里安装脚本 (通过GreasyFork)](https://greasyfork.org/zh-CN/scripts/502006-%E9%9B%80%E9%AD%82%E9%83%8A%E7%8B%BC%E7%9B%91%E5%90%AC%E5%99%A8)**。
 
-### Windows Steam 雀魂
+## 从源码启动 (支持MacOS/Linux)
+
+### 雀魂客户端
 
 安装依赖，推荐使用 PNPM，为了兼容性，以下示例仍使用 NPM：
 
@@ -23,7 +30,9 @@
 npm install
 ```
 
-下载 **[proxinject](https://github.com/PragmaTwice/proxinject/releases)**，解压后放在 ```bin/proxinject``` 目录下。（如果不需要使用Windows Steam 雀魂，可以跳过）
+**仅限Windows:** 下载 **[proxinject](https://github.com/PragmaTwice/proxinject/releases)**，解压后放在 ```bin/proxinject``` 目录下。（如果不需要使用Windows Steam 雀魂，可以跳过）
+
+Linux和MacOS需要使用proxychains，总之需要让雀魂客户端通过socks5代理连接到服务器。
 
 运行以下命令启动服务：
 
@@ -45,5 +54,3 @@ npm run build:user
 ```bash
 npm run start
 ```
-
-待更新
