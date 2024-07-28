@@ -9,7 +9,11 @@
 - Windows Steam 雀魂
 - 网页版雀魂
 
-## 使用方法
+## 基本使用
+
+从 [Release](https://github.com/hyperzlib/Coyote-Majsoul/releases) 下载最新版本，解压后运行 ```coyote-majsoul.exe``` 即可。
+
+如果需要在网页版雀魂中使用，请安装 **[Tampermonkey](https://www.tampermonkey.net/)** 插件，然后 **[点击这里安装脚本 (通过GreasyFork)](https://greasyfork.org/zh-CN/scripts/502006-%E9%9B%80%E9%AD%82%E9%83%8A%E7%8B%BC%E7%9B%91%E5%90%AC%E5%99%A8)**。
 
 ### Windows Steam 雀魂
 
