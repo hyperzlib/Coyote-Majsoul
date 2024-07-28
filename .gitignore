@@ -16,3 +16,4 @@ server/analyser/analyser-local-*/
 /decode_pkg.py
 
 server/test-*.ts
+.debug

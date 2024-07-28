@@ -1,10 +1,12 @@
 import winston from 'winston'
 import { existsSync } from 'fs'
 
+const DEBUG_MODE = existsSync('.debug')
+
 const logger = winston.createLogger({
   transports: [
     new winston.transports.File({
-      level: existsSync('.debug') ? 'debug' : 'info',
+      level: DEBUG_MODE ? 'debug' : 'info',
       filename: 'logs/server.log',
       format: winston.format.combine(
         winston.format.timestamp(),
@@ -21,5 +23,9 @@ const logger = winston.createLogger({
     })
   ]
 })
+
+if (DEBUG_MODE) {
+  logger.info('Debug mode enabled')
+}
 
 export default logger

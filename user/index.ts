@@ -10,9 +10,9 @@ window.onblur = () => {
   isWindowFocus = false
 }
 
-if (window.location.host === 'game.maj-soul.com') {
+if (window.location.host === 'game.maj-soul.com' || window.location.host === 'game.mahjongsoul.com') {
   wsHook.before = (data, url) => {
-    if (!url.includes('/game-gateway')) { return data }
+    if (!url.includes('/game-gateway') && !url.includes('mjjpgs.')) { return data }
     try {
       const req = new XMLHttpRequest()
       req.open('POST', `${serverURL}api/event?msg=req&meID=${window?.GameMgr?.Inst?.account_data?.account_id ?? ''}&game=majsoul`)
@@ -23,14 +23,9 @@ if (window.location.host === 'game.maj-soul.com') {
     return data
   }
   wsHook.after = (messageEvent, url) => {
-    if (!url.includes('/game-gateway')) { return messageEvent }
+    if (!url.includes('/game-gateway') && !url.includes('mjjpgs.')) { return messageEvent }
     try {
       const binaryMsg = messageEvent.data as ArrayBuffer
-      const screenX = window.screenX + (document.querySelector<HTMLCanvasElement>('#layaCanvas')?.offsetLeft ?? 0) / window.devicePixelRatio
-      const screenY = window.screenY + window.outerHeight - window.innerHeight + (document.querySelector<HTMLCanvasElement>('#layaCanvas')?.getBoundingClientRect().y ?? 0)
-      const w = (window.layaCanvas.width ?? 0) / window.devicePixelRatio
-      const h = (window.layaCanvas.height ?? 0) / window.devicePixelRatio
-      const dpi = window.devicePixelRatio
       const req = new XMLHttpRequest()
       req.open('POST', `${serverURL}api/event?msg=res&meID=${window?.GameMgr?.Inst?.account_data?.account_id ?? ''}&game=majsoul`)
       req.send(binaryMsg)

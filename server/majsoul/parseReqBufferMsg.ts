@@ -1,8 +1,10 @@
 import { Root, AnyNestedObject } from 'protobufjs'
 import liqi from './liqi.json'
 import { ResAuthGame } from '../types/ParsedMajsoulJSON'
+import { findSubArrayIndex } from '../utils/helper'
+import logger from '../logger'
 
-export function parseReqBufferMsg(binaryReq: Buffer): Array<{ index: number, name: string, resName: string, data: any }> {
+export function parseReqBufferMsg(binaryReq: Buffer): Array<{ index: number, name: string, reqName: string, resName: string, data: any }> {
   const binaryReqArr = new Uint8Array(binaryReq)
 
   // load('./liqi', (err, root) => {
@@ -14,7 +16,7 @@ export function parseReqBufferMsg(binaryReq: Buffer): Array<{ index: number, nam
   try {
     interface DecodeReq { data: Uint8Array, name: string }
 
-    const { name } = wrapper.decode(binaryReqArr.slice(3)) as unknown as DecodeReq
+    const { name, data } = wrapper.decode(binaryReqArr.slice(3)) as unknown as DecodeReq
 
     const service = root.lookup(name) as unknown as { requestType: string, responseType: string }
     const reqName = service.requestType
@@ -23,22 +25,23 @@ export function parseReqBufferMsg(binaryReq: Buffer): Array<{ index: number, nam
     if (
       /(authGame)|(syncGame)|(oauth2Login)/i.test(name)
     ) {
-      let data = {}
+      let dataJson = {}
 
       try {
-        let prefixPos = name.lastIndexOf('.')
-        console.log(Buffer.from(binaryReqArr.slice(7 + prefixPos)).toString('hex'))
-        data = root.lookupType(reqName).decode(binaryReqArr.slice(7 + prefixPos))
+        dataJson = root.lookupType('.lq.' + reqName).decode(data)
+        logger.debug('<parser> req data: ' + JSON.stringify(dataJson))
       } catch (err) {
         console.error(err)
+        console.log('Error buffer', Buffer.from(binaryReqArr).toString('hex'))
       }
 
       return [
         {
           name,
+          reqName,
           resName,
           index: Buffer.from(binaryReqArr.slice(1, 3)).readUInt16LE(),
-          data,
+          data: dataJson,
         }
       ]
     } else {

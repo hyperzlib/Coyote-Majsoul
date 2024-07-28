@@ -206,7 +206,7 @@ async function main() {
   await mitmServer.listen(56555)
 
   app.listen(56556, () => {
-    UI.clear()
+    // UI.clear()
     logger.info('<server-base> Socks5 MITM started at port 56555')
     logger.info('<server-base> Server started at port 56556')
     logger.info('<server-base> Config dashboard: http://127.0.0.1:56556')

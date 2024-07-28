@@ -142,7 +142,6 @@ export class MajsoulMitmServer {
     public listen(port: number) {
         return new Promise<void>((resolve) => {
             this.server.listen(port, '127.0.0.1', function () {
-                console.log('SOCKS server listening on port ' + port);
                 resolve();
             });
 
