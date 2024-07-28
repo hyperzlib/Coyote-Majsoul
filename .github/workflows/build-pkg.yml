@@ -54,15 +54,17 @@ jobs:
         out-file-path: build/bin/proxinject/
         extract: true
     - name: Build Windows executable
-      run: npm run build:pkg:clean && npm run build:pkg:assets && npm run build:pkg:win
+      run: npm run build:pkg:assets && npm run build:pkg:win
     - name: Archive Windows artifact
       uses: actions/upload-artifact@v4
       with:
-        name: windows-amd64-dist
+        name: coyote-majsoul-windows-amd64-dist
         path: |
           build
+    - name: Clean up build artifacts
+      run: npm run build:pkg:clean
     - name: Build Linux executable
-      run: npm run build:pkg:clean && npm run build:pkg:assets && npm run build:pkg:linux
+      run: npm run build:pkg:assets && npm run build:pkg:linux
     - name: Archive Linux artifact
       uses: actions/upload-artifact@v4
       with:
