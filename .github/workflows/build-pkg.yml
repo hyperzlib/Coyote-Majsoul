@@ -47,8 +47,6 @@ jobs:
       run: npm run build:server --if-present
     - name: Install root packages
       run: npm ci
-    - name: Migrate files
-      run: npm run build:migrate
     - name: Download proxinject
       uses: robinraju/release-downloader@v1
       with:
