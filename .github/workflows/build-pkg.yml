@@ -34,7 +34,6 @@ jobs:
       working-directory: ./frontend
     - name: Install packages
       run: npm ci
-      working-directory: ./server
     - name: Build Tampermonkey script
       run: npm run build:user --if-present
     - name: Archive Tampermonkey script
@@ -45,8 +44,6 @@ jobs:
           dist
     - name: Build server
       run: npm run build:server --if-present
-    - name: Install root packages
-      run: npm ci
     - name: Download proxinject
       uses: robinraju/release-downloader@v1
       with:
