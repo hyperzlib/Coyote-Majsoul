@@ -13,6 +13,7 @@
 
 - Windows Steam 雀魂
 - 网页版雀魂
+- MacOS Steam 雀魂 (未测试)
 
 ## 基本使用
 
