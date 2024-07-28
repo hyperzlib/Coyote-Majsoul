@@ -6,6 +6,7 @@ import Aura from '@primevue/themes/aura';
 
 import DialogService from 'primevue/dialogservice';
 import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice';
 
 import 'virtual:windi.css'
 import 'primeicons/primeicons.css'
@@ -69,4 +70,5 @@ createApp(App)
     })
     .use(DialogService)
     .use(ToastService)
+    .use(ConfirmationService)
     .mount('#app');

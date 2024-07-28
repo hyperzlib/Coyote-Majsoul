@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@donedeal0/superdiff':
+        specifier: ^1.1.3
+        version: 1.1.3
       '@primevue/themes':
         specifier: 4.0.0-rc.2
         version: 4.0.0-rc.2(@primeuix/styled@0.0.1)
@@ -85,6 +88,9 @@ packages:
   '@babel/types@7.24.7':
     resolution: {integrity: sha512-XEFXSlxiG5td2EJRe8vOmRbaXVgfcBlszKujvVmWIK/UpywWljQCfzAv3RQCGujWQ1RD4YYWEAqDXfuJiy8f5Q==}
     engines: {node: '>=6.9.0'}
+
+  '@donedeal0/superdiff@1.1.3':
+    resolution: {integrity: sha512-lp316jRb+OCCm8KbzidppWCKteISwgpWU6sxzzDI+PJtflfX87h/AHVQdcqY1f3/za2S869KliJbtJZuan1H2Q==}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -811,6 +817,8 @@ snapshots:
       '@babel/helper-string-parser': 7.24.7
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
+
+  '@donedeal0/superdiff@1.1.3': {}
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true

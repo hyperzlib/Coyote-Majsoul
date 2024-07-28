@@ -22,14 +22,12 @@ export type CoyoteAction = {
 };
 
 const props = withDefaults(defineProps<{
-    readonly?: boolean,
+    disabled?: boolean,
 }>(), {
-    readonly: false,
+    disabled: false,
 });
 
-const modelValue = defineModel<CoyoteAction>();
-
-let updatingValue = false;
+let ignoreStateUpdate = false;
 
 const state = reactive({
     actionType: 'disabled' as 'disabled' | 'add' | 'sub' | 'fire',
@@ -42,6 +40,8 @@ const state = reactive({
     inputFireValue: 10,
     inputTimeValue: 5,
 });
+
+const modelValue = defineModel<CoyoteAction | null>();
 
 const actionTypeOptions = [
     { label: '无操作', value: 'disabled' },
@@ -99,14 +99,13 @@ const onActiveRandomValueChange = () => {
 };
 
 watch(modelValue, (value) => {
-    if (updatingValue) {
-        updatingValue = false;
+    if (ignoreStateUpdate) {
         return;
     }
 
     // 更新输入框的值
+    ignoreStateUpdate = true;
     if (value) {
-        updatingValue = true;
 
         state.activeBaseValue = false;
         state.activeRandomValue = false;
@@ -136,32 +135,36 @@ watch(modelValue, (value) => {
         } else {
             state.actionType = 'disabled';
         }
-
-        nextTick(() => {
-            updatingValue = false;
-        });
     } else {
         state.actionType = 'disabled';
     }
 
     onActiveBaseValueChange(); // 确保至少有一个输入框是激活的
+
+    nextTick(() => {
+        ignoreStateUpdate = false;
+    });
 }, { immediate: true, deep: true });
 
 watch(actionConfig, (value) => {
-    if (updatingValue) {
-        updatingValue = false;
+    if (ignoreStateUpdate) {
         return;
     }
 
-    updatingValue = true;
+    ignoreStateUpdate = true;
+
     modelValue.value = value;
+
+    nextTick(() => {
+        ignoreStateUpdate = false;
+    });
 }, { deep: true });
 </script>
 
 <template>
     <div class="flex flex-row gap-4">
         <Select class="w-35 flex-grow-0 flex-shrink-0" v-model="state.actionType" :options="actionTypeOptions"
-            optionLabel="label" optionValue="value" :disabled="props.readonly"></Select>
+            optionLabel="label" optionValue="value" :disabled="props.disabled"></Select>
         <template v-if="state.actionType === 'add' || state.actionType == 'sub'">
             <InputGroup class="flex-grow-0 !w-auto">
                 <InputGroupAddon>
@@ -170,7 +173,7 @@ watch(actionConfig, (value) => {
                     <label class="ml-2 text-dark-500" :for="inputIdPrefix + 'activeBaseValue'">基础值</label>
                 </InputGroupAddon>
                 <InputNumber class="!w-25" v-if="state.activeBaseValue" v-model="state.inputBaseValue"
-                    :disabled="props.readonly" :showButtons="!props.readonly" :min="0" :max="100" :step="1">
+                    :disabled="props.disabled" :min="0" :max="100" :step="1">
                 </InputNumber>
             </InputGroup>
             <InputGroup class="flex-grow-0 !w-auto">
@@ -180,7 +183,7 @@ watch(actionConfig, (value) => {
                     <label class="ml-2 text-dark-500" :for="inputIdPrefix + 'activeRandomValue'">随机值</label>
                 </InputGroupAddon>
                 <InputNumber class="!w-25" v-if="state.activeRandomValue" v-model="state.inputRandomValue"
-                    :disabled="props.readonly" :showButtons="!props.readonly" :min="0" :max="100" :step="1">
+                    :disabled="props.disabled" :min="0" :max="100" :step="1">
                 </InputNumber>
             </InputGroup>
         </template>
@@ -189,16 +192,16 @@ watch(actionConfig, (value) => {
                 <InputGroupAddon>
                     <span class="text-dark-500">一键开火强度</span>
                 </InputGroupAddon>
-                <InputNumber class="!w-25" v-model="state.inputFireValue" :disabled="props.readonly"
-                    :showButtons="!props.readonly" :min="0" :max="30" :step="1">
+                <InputNumber class="!w-25" v-model="state.inputFireValue" :disabled="props.disabled" :min="0" :max="30"
+                    :step="1">
                 </InputNumber>
             </InputGroup>
             <InputGroup class="flex-grow-0 !w-auto">
                 <InputGroupAddon>
                     <span class="text-dark-500">持续时间</span>
                 </InputGroupAddon>
-                <InputNumber class="!w-25" v-model="state.inputTimeValue" :disabled="props.readonly"
-                    :showButtons="!props.readonly" :min="0" :max="30" :step="1">
+                <InputNumber class="!w-25" v-model="state.inputTimeValue" :disabled="props.disabled" :min="0" :max="30"
+                    :step="1">
                 </InputNumber>
                 <InputGroupAddon>
                     <span class="text-dark-500">秒</span>

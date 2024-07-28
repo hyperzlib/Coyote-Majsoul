@@ -55,11 +55,13 @@ watch(visible, (value) => {
 
 <template>
   <Dialog v-model:visible="visible" modal :header="props.actionName + '玩家配置'" class="mx-4 w-full md:w-[40rem]">
-    <BindUserPanel v-model="state.playerSelector"></BindUserPanel>
-    <div class="flex justify-end gap-2 mt-6">
-        <Button type="button" label="取消" @click="visible = false" severity="secondary"></Button>
-        <Button type="button" label="确认" @click="onConfirm"></Button>
-    </div>
+    <form @submit.prevent="onConfirm">
+      <BindUserPanel v-model="state.playerSelector"></BindUserPanel>
+      <div class="flex justify-end gap-2 mt-6">
+          <Button type="button" label="取消" @click="visible = false" severity="secondary"></Button>
+          <Button type="button" label="确认" @click="onConfirm"></Button>
+      </div>
+    </form>
   </Dialog>
 </template>
 

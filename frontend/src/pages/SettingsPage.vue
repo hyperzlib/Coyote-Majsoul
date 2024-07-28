@@ -1,23 +1,35 @@
 <script lang="ts" setup>
 import Toast from 'primevue/toast';
+import ConfirmDialog from 'primevue/confirmdialog';
 import Toolbar from 'primevue/toolbar';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import ProgressSpinner from 'primevue/progressspinner';
+import { useConfirm } from "primevue/useconfirm";
 import MajsoulCoyoteSettingsPanel from '../components/panels/MajsoulCoyoteSettingsPanel.vue';
 import AddPlayerDialog from '../components/dialogs/AddPlayerDialog.vue';
 import { CoyoteGameConfig, CoyoteGameConfigItem } from '../types/CoyoteGameConfig';
 import FadeAndSlideTransitionGroup from '../components/transitions/FadeAndSlideTransitionGroup.vue';
 import { asleep } from '../utils/helper';
+import deepCopy from 'deepcopy';
 
 defineExpose({
   name: 'SettingsPage'
 });
 
+const confirmDialog = useConfirm();
+
 const defaultGameConfig: CoyoteGameConfigItem = {
   controllerUrl: 'http://127.0.0.1:8920',
   targetClientId: 'all',
+  mingpai: null,
+  dianpao: null,
+  biejializhi: null,
+  biejiazimo: null,
+  liuju: null,
+  tingpailiuju: null,
+  jifei: null,
   sanma: {},
   sima: {},
 }
@@ -26,12 +38,16 @@ const state = reactive({
   loading: true,
 
   selectPlayer: null as number | null,
+  inputSelectPlayer: null as number | null,
+
   showAddPlayerConfDialog: false,
   showCopyPlayerConfDialog: false,
 
   gameConfigs: [] as CoyoteGameConfig,
 
   selectedConfig: {} as CoyoteGameConfigItem,
+
+  configChanged: false,
 });
 
 const playerOptions = computed(() => {
@@ -53,14 +69,65 @@ const playerOptions = computed(() => {
       };
     }
   });
-})
+});
 
-const onAddPlayerConf = () => {
-  state.showAddPlayerConfDialog = true;
+const confirmIgnoreChange = () => {
+  return new Promise<boolean>((resolve) => {
+    if (state.configChanged) {
+      console.log('config changed');
+      confirmDialog.require({
+        header: '提示',
+        message: '当前配置已经修改，继续操作将会丢失修改，是否继续？',
+        rejectProps: {
+          label: '返回',
+          severity: 'primary',
+        },
+        acceptProps: {
+          label: '继续',
+          severity: 'danger',
+        },
+        accept: () => {
+          resolve(true);
+        },
+        reject: () => {
+          resolve(false);
+        },
+      });
+    } else {
+      resolve(true);
+    }
+  });
 }
 
-const onCopyPlayerConf = () => {
-  state.showCopyPlayerConfDialog = true;
+const onAddPlayerConf = async () => {
+  if (await confirmIgnoreChange()) {
+    state.showAddPlayerConfDialog = true;
+  }
+}
+
+const onCopyPlayerConf = async () => {
+  if (await confirmIgnoreChange()) {
+    state.showCopyPlayerConfDialog = true;
+  }
+}
+
+const onDeletePlayerConf = async () => {
+  confirmDialog.require({
+    header: '提示',
+    message: '确定要删除该玩家配置吗？',
+    rejectProps: {
+      label: '取消',
+      severity: 'secondary',
+    },
+    acceptProps: {
+      label: '删除',
+      severity: 'danger',
+    },
+    accept: () => {
+      state.gameConfigs.splice(state.selectPlayer!, 1);
+      state.selectPlayer = null;
+    },
+  });
 }
 
 const doAddPlayerConf = (playerSelector: any) => {
@@ -77,8 +144,14 @@ const doCopyPlayerConf = (playerSelector: any) => {
     return;
   }
 
+  let newGameConfig = deepCopy(state.gameConfigs[state.selectPlayer]);
+
+  newGameConfig.accountId = null;
+  newGameConfig.nickname = null;
+  newGameConfig.isMe = null;
+
   state.gameConfigs.push({
-    ...state.gameConfigs[state.selectPlayer],
+    ...newGameConfig,
     ...playerSelector,
   });
 
@@ -102,8 +175,24 @@ const validatePlayerConfig = (playerSelector: any) => {
 }
 
 const selectPlayer = (index: number) => {
+  console.log('切换玩家配置', index);
   state.selectPlayer = index;
+  state.inputSelectPlayer = index;
   state.selectedConfig = state.gameConfigs[index];
+}
+
+watch(() => state.inputSelectPlayer, async (value) => {
+  if (typeof value === 'number' && value !== state.selectPlayer) {
+    if (await confirmIgnoreChange()) {
+      selectPlayer(value);
+    } else {
+      state.inputSelectPlayer = state.selectPlayer;
+    }
+  }
+});
+
+const onUpdateConfigChanged = (changed: boolean) => {
+  state.configChanged = changed;
 }
 
 const loadGameConfigs = async () => {
@@ -201,6 +290,7 @@ onMounted(() => {
 <template>
   <div class="w-full page-container">
     <Toast></Toast>
+    <ConfirmDialog></ConfirmDialog>
     <Card class="controller-panel flex-grow-1 flex-shrink-1 w-full">
       <template #header>
         <Toolbar class="controller-toolbar">
@@ -210,10 +300,10 @@ onMounted(() => {
           <template #end>
             <div class="flex gap-2" v-if="!state.loading">
               <Button severity="secondary" icon="pi pi-plus" @click="onAddPlayerConf"></Button>
-              <Select class="w-60" :modelValue="state.selectPlayer" :options="playerOptions" optionLabel="label"
+              <Select class="w-60" v-model="state.inputSelectPlayer" :options="playerOptions" optionLabel="label"
                 optionValue="index"></Select>
               <Button severity="secondary" icon="pi pi-copy" :disabled="state.selectPlayer === null" @click="onCopyPlayerConf"></Button>
-              <Button severity="secondary" icon="pi pi-trash" :disabled="state.selectPlayer === null"></Button>
+              <Button severity="secondary" icon="pi pi-trash text-red-600" :disabled="state.selectPlayer === null" @click="onDeletePlayerConf"></Button>
             </div>
           </template>
         </Toolbar>
@@ -230,7 +320,7 @@ onMounted(() => {
             </div>
           </div>
           <div v-else class="w-full">
-            <MajsoulCoyoteSettingsPanel v-model="state.selectedConfig" />
+            <MajsoulCoyoteSettingsPanel v-model="state.selectedConfig" @update:configChanged="onUpdateConfigChanged" />
           </div>
         </FadeAndSlideTransitionGroup>
       </template>

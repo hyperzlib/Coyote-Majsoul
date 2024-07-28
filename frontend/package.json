@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@donedeal0/superdiff": "^1.1.3",
     "@primevue/themes": "4.0.0-rc.2",
     "deepcopy": "^2.1.0",
     "eventemitter3": "^5.0.1",

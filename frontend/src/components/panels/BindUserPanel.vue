@@ -42,35 +42,39 @@ const inputPlaceholder = computed(() => {
     }
 });
 
-const emit = defineEmits<{
-    (name: 'update:modelValue', value: any): void,
-}>();
-
-let updatingValue = false;
+let ignoreStateChange = false;
 
 watch(state, () => {
-    if (updatingValue) {
-        updatingValue = false;
+    if (ignoreStateChange) {
         return;
     }
 
-    updatingValue = true;
+    ignoreStateChange = true;
     switch (state.userFilter) {
         case UserFilter.Me:
-            emit('update:modelValue', { isMe: true });
+            modelValue.value = {
+                isMe: true
+            };
             break;
         case UserFilter.Nickname:
-            emit('update:modelValue', { nickname: state.inputValue });
+            modelValue.value = {
+                nickname: state.inputValue,
+            };
             break;
         case UserFilter.AccountId:
-            emit('update:modelValue', { accountId: parseInt(state.inputValue) });
+            modelValue.value = {
+                accountId: parseInt(state.inputValue),
+            };
             break;
     }
+
+    nextTick(() => {
+        ignoreStateChange = false;
+    });
 }, { deep: true });
 
 watch(modelValue, (value) => {
-    if (updatingValue) {
-        updatingValue = false;
+    if (ignoreStateChange) {
         return;
     }
 
@@ -78,8 +82,8 @@ watch(modelValue, (value) => {
         return;
     }
 
-    updatingValue = true;
-    
+    ignoreStateChange = true;
+
     if (value.isMe) {
         state.userFilter = UserFilter.Me;
     } else if (value.nickname) {
@@ -91,7 +95,7 @@ watch(modelValue, (value) => {
     }
 
     nextTick(() => {
-        updatingValue = false;
+        ignoreStateChange = false;
     });
 }, { deep: true });
 </script>
