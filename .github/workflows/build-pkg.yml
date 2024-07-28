@@ -57,19 +57,11 @@ jobs:
       run: mkdir -p build/bin/proxyinject && cp -r proxinject/release build/bin/proxinject
     - name: Build Windows executable
       run: npm run build:pkg:assets && npm run build:pkg:win
+    - name: Move Files to artifact dir
+      run: mkdir -p artifacts && mv build artifacts/coyote-majsoul
     - name: Archive Windows artifact
       uses: actions/upload-artifact@v4
       with:
         name: coyote-majsoul-windows-amd64-dist
         path: |
-          build
-    - name: Clean up build artifacts
-      run: npm run build:pkg:clean
-    - name: Build Linux executable
-      run: npm run build:pkg:assets && npm run build:pkg:linux
-    - name: Archive Linux artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: coyote-majsoul-linux-amd64-dist
-        path: |
-          build
+          artifacts
