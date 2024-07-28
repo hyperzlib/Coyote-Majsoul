@@ -11,14 +11,16 @@ import MajsoulCoyoteSettingsPanel from '../components/panels/MajsoulCoyoteSettin
 import AddPlayerDialog from '../components/dialogs/AddPlayerDialog.vue';
 import { CoyoteGameConfig, CoyoteGameConfigItem } from '../types/CoyoteGameConfig';
 import FadeAndSlideTransitionGroup from '../components/transitions/FadeAndSlideTransitionGroup.vue';
-import { asleep } from '../utils/helper';
 import deepCopy from 'deepcopy';
+import { webApi } from '../apis/webApi';
+import { useToast } from 'primevue/usetoast';
 
 defineExpose({
   name: 'SettingsPage'
 });
 
 const confirmDialog = useConfirm();
+const toast = useToast();
 
 const defaultGameConfig: CoyoteGameConfigItem = {
   controllerUrl: 'http://127.0.0.1:8920',
@@ -36,6 +38,7 @@ const defaultGameConfig: CoyoteGameConfigItem = {
 
 const state = reactive({
   loading: true,
+  loadError: null as string | null,
 
   selectPlayer: null as number | null,
   inputSelectPlayer: null as number | null,
@@ -45,6 +48,7 @@ const state = reactive({
 
   gameConfigs: [] as CoyoteGameConfig,
 
+  selectedPlayerSelector: {} as any,
   selectedConfig: {} as CoyoteGameConfigItem,
 
   configChanged: false,
@@ -112,22 +116,36 @@ const onCopyPlayerConf = async () => {
 }
 
 const onDeletePlayerConf = async () => {
-  confirmDialog.require({
-    header: '提示',
-    message: '确定要删除该玩家配置吗？',
-    rejectProps: {
-      label: '取消',
-      severity: 'secondary',
-    },
-    acceptProps: {
-      label: '删除',
-      severity: 'danger',
-    },
-    accept: () => {
-      state.gameConfigs.splice(state.selectPlayer!, 1);
-      state.selectPlayer = null;
-    },
-  });
+  if (typeof state.selectPlayer === 'number') {
+    confirmDialog.require({
+      header: '提示',
+      message: '确定要删除该玩家配置吗？',
+      rejectProps: {
+        label: '取消',
+        severity: 'secondary',
+      },
+      acceptProps: {
+        label: '删除',
+        severity: 'danger',
+      },
+      accept: () => {
+        state.gameConfigs = state.gameConfigs.filter((_, index) => {
+          console.log('index', index);
+          return index !== state.selectPlayer;
+        });
+
+        console.log(JSON.stringify(state.gameConfigs));
+
+        if (state.gameConfigs.length === 0) {
+          state.selectPlayer = null;
+        } else {
+          selectPlayer(0);
+        }
+
+        onSaveConfig();
+      },
+    });
+  }
 }
 
 const doAddPlayerConf = (playerSelector: any) => {
@@ -155,6 +173,8 @@ const doCopyPlayerConf = (playerSelector: any) => {
     ...playerSelector,
   });
 
+  onSaveConfig();
+
   selectPlayer(state.gameConfigs.length - 1);
 }
 
@@ -175,10 +195,15 @@ const validatePlayerConfig = (playerSelector: any) => {
 }
 
 const selectPlayer = (index: number) => {
-  console.log('切换玩家配置', index);
   state.selectPlayer = index;
   state.inputSelectPlayer = index;
   state.selectedConfig = state.gameConfigs[index];
+
+  state.selectedPlayerSelector = {
+    accountId: state.selectedConfig.accountId,
+    nickname: state.selectedConfig.nickname,
+    isMe: state.selectedConfig.isMe,
+  }
 }
 
 watch(() => state.inputSelectPlayer, async (value) => {
@@ -195,84 +220,53 @@ const onUpdateConfigChanged = (changed: boolean) => {
   state.configChanged = changed;
 }
 
-const loadGameConfigs = async () => {
-  // fake loading
-  await asleep(1000);
+const onSaveConfig = async () => {
+  // 合并当前配置
+  if (typeof state.selectPlayer === 'number') {
+    state.gameConfigs[state.selectPlayer] = {
+      ...state.selectedConfig,
+      ...state.selectedPlayerSelector,
+    }
+  }
 
-  state.gameConfigs = [
-    {
-      /** 使用当前用户 */
-      isMe: true,
-      /** 战败惩罚控制器URL */
-      controllerUrl: "http://127.0.0.1:8920",
-      /** 控制器ClientID */
-      targetClientId: "all",
-      /** 被吃碰杠时 */
-      mingpai: {
-        fire: 10,
-        time: 5,
-      },
-      /** 点炮时 */
-      dianpao: {
-        fire: 20,
-        time: 5,
-      },
-      /** 别家自摸时 */
-      biejiazimo: {
-        fire: 10,
-        time: 5,
-      },
-      /** 别家立直时 */
-      biejializhi: {
-        fire: 10,
-        time: 5,
-      },
-      /** 流局（未听） */
-      liuju: {
-        addRandom: 3,
-      },
-      /** 听牌流局 */
-      tingpailiuju: {
-        subRandom: 3,
-      },
-      /** 三麻 */
-      sanma: {
-        /** 一位 */
-        no1: {
-          subBase: 6,
-        },
-        /** 二位 */
-        no2: {
-          addBase: 5,
-        },
-        /** 三位 */
-        no3: {
-          addBase: 10,
-        },
-      },
-      /** 四麻 */
-      sima: {
-        /** 一位 */
-        no1: {
-          subBase: 5,
-        },
-        /** 二位 */
-        no2: null,
-        /** 三位 */
-        no3: {
-          addBase: 5,
-        },
-        /** 四位 */
-        no4: {
-          addBase: 10,
-        },
-      },
-      /** 被飞 */
-      jifei: {
-        addRandom: 5,
-      },
-    },
-  ];
+  try {
+    const res = await webApi.updateConfig(state.gameConfigs);
+
+    if (!res) {
+      throw new Error('保存配置失败: API返回为空');
+    }
+
+    if (res.status !== 1) {
+      throw new Error('保存配置失败: ' + res.message);
+    }
+
+    toast.add({ severity: 'success', summary: '完成', detail: '配置已保存', life: 3000 });
+  } catch (err: any) {
+    console.error(err);
+    toast.add({ severity: 'error', summary: '错误', detail: err.message, life: 5000 });
+  }
+}
+
+const loadGameConfigs = async () => {
+  state.loading = true;
+
+  try {
+    const res = await webApi.loadConfig();
+
+    if (!res) {
+      throw new Error('加载配置失败: API返回为空');
+    }
+
+    if (res.status !== 1) {
+      throw new Error('加载配置失败: ' + res.message);
+    }
+
+    state.gameConfigs = res.gameConfig!;
+  } catch (err: any) {
+    console.error(err);
+    state.loadError = err.message;
+    return;
+  }
 
   state.loading = false;
 
@@ -302,8 +296,10 @@ onMounted(() => {
               <Button severity="secondary" icon="pi pi-plus" @click="onAddPlayerConf"></Button>
               <Select class="w-60" v-model="state.inputSelectPlayer" :options="playerOptions" optionLabel="label"
                 optionValue="index"></Select>
-              <Button severity="secondary" icon="pi pi-copy" :disabled="state.selectPlayer === null" @click="onCopyPlayerConf"></Button>
-              <Button severity="secondary" icon="pi pi-trash text-red-600" :disabled="state.selectPlayer === null" @click="onDeletePlayerConf"></Button>
+              <Button severity="secondary" icon="pi pi-copy" :disabled="state.selectPlayer === null"
+                @click="onCopyPlayerConf"></Button>
+              <Button severity="secondary" icon="pi pi-trash text-red-600" :disabled="state.selectPlayer === null"
+                @click="onDeletePlayerConf"></Button>
             </div>
           </template>
         </Toolbar>
@@ -311,7 +307,10 @@ onMounted(() => {
 
       <template #content>
         <FadeAndSlideTransitionGroup>
-          <div v-if="state.loading" class="flex justify-center py-20">
+          <div v-if="state.loadError" class="flex justify-center py-20">
+            <p class="text-red-600 text-lg font-semibold">{{ state.loadError }}</p>
+          </div>
+          <div v-else-if="state.loading" class="flex justify-center py-20">
             <ProgressSpinner />
           </div>
           <div v-else-if="state.selectPlayer === null">
@@ -320,15 +319,16 @@ onMounted(() => {
             </div>
           </div>
           <div v-else class="w-full">
-            <MajsoulCoyoteSettingsPanel v-model="state.selectedConfig" @update:configChanged="onUpdateConfigChanged" />
+            <MajsoulCoyoteSettingsPanel v-model="state.selectedConfig" @update:configChanged="onUpdateConfigChanged"
+              @save="onSaveConfig" />
           </div>
         </FadeAndSlideTransitionGroup>
       </template>
     </Card>
-    <AddPlayerDialog actionName="添加" v-model:visible="state.showAddPlayerConfDialog"
-      :validator="validatePlayerConfig" @confirm="doAddPlayerConf" />
-    <AddPlayerDialog actionName="复制" v-model:visible="state.showCopyPlayerConfDialog"
-      :validator="validatePlayerConfig" @confirm="doCopyPlayerConf" />
+    <AddPlayerDialog actionName="添加" v-model:visible="state.showAddPlayerConfDialog" :validator="validatePlayerConfig"
+      @confirm="doAddPlayerConf" />
+    <AddPlayerDialog actionName="复制" v-model:visible="state.showCopyPlayerConfDialog" :validator="validatePlayerConfig"
+      @confirm="doCopyPlayerConf" />
   </div>
 </template>
 

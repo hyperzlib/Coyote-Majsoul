@@ -26,12 +26,7 @@ class TypeValidator {
     constructor() { }
 
     public async initialize() {
-        this.validators.set('ConfigType', this.ajv.compile(await this.loadSchema('ConfigType.json')));
-    }
-
-    private async loadSchema(schemaPath: string) {
-        let baseDir = __dirname + '/../schemas/';
-        return JSON.parse(await readFile(baseDir + schemaPath, { encoding: 'utf-8' }));
+        this.validators.set('ConfigType', this.ajv.compile(require('../schemas/ConfigType.json')));
     }
 
     public validate(type: string, data: any): boolean {

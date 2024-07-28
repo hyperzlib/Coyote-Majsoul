@@ -19,7 +19,7 @@
 npm install
 ```
 
-下载 **[proxinjector](https://github.com/PragmaTwice/proxinject/releases)**，解压后放在 ```bin/proxinjector``` 目录下。（如果不需要使用Windows Steam 雀魂，可以跳过）
+下载 **[proxinject](https://github.com/PragmaTwice/proxinject/releases)**，解压后放在 ```bin/proxinject``` 目录下。（如果不需要使用Windows Steam 雀魂，可以跳过）
 
 运行以下命令启动服务：
 

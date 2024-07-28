@@ -43,7 +43,7 @@ export function parseResBufferMsg (binaryMsg: Buffer, reqQueueMajsoul: Readonly<
       switch (resName) {
         case 'ResSyncGame':
           if (Array.isArray(parsedMsg.data.game_restore?.actions)) {
-            (parsedMsg.data.game_restore.actions).forEach(({ name: actionName, data }, index, list) => {
+            (parsedMsg.data.game_restore.actions).forEach(({ name: actionName, data }: any, index: number, list: any[]) => {
               list[index].data = root.lookupType(actionName as string).decode(data as Uint8Array)
             })
           }

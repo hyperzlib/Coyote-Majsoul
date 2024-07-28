@@ -23,7 +23,7 @@
         "CoyoteGameConfigItem": {
             "type": "object",
             "properties": {
-                "account_id": {
+                "accountId": {
                     "type": [
                         "number",
                         "null"
@@ -44,9 +44,9 @@
                     ],
                     "description": "使用当前用户"
                 },
-                "host": {
+                "controllerUrl": {
                     "type": "string",
-                    "description": "控制器host"
+                    "description": "战败惩罚控制器URL"
                 },
                 "targetClientId": {
                     "type": "string",
@@ -222,7 +222,7 @@
                 }
             },
             "required": [
-                "host",
+                "controllerUrl",
                 "targetClientId",
                 "sanma",
                 "sima"

@@ -54,6 +54,7 @@ const state = reactive({
 
 const emit = defineEmits<{
     'update:configChanged': [value: boolean],
+    'save': [],
 }>();
 
 const clientTargetOptions = [
@@ -73,24 +74,6 @@ const buildConfig = (): CoyoteGameConfigItem => {
     }
 
     delete conf.targetType;
-
-    for (const key in conf) {
-        if (!conf[key]) {
-            delete conf[key];
-        }
-    }
-
-    for (const key in conf.sanma) {
-        if (!conf.sanma[key]) {
-            delete conf.sanma[key];
-        }
-    }
-
-    for (const key in conf.sima) {
-        if (!conf.sima[key]) {
-            delete conf.sima[key];
-        }
-    }
 
     return conf;
 }
@@ -114,6 +97,7 @@ const saveConfig = () => {
     oldConf = deepCopy(state.conf);
 
     state.confChanged = false;
+    emit('save');
 
     nextTick(() => {
         ignoreStateChange = false;

@@ -2,10 +2,8 @@
   "include": [
     "server/**/*.ts",
   ],
-  "exclude": [
-    "node_modules"
-  ],
   "compilerOptions": {
+    "strict": true,
     "target": "ES2015",
     "rootDir": "server",
     "outDir": "dist-server",

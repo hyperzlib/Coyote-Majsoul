@@ -9,8 +9,8 @@ TODOs.txt
 
 server/analyser/analyser-local-*/
 
-/bin/proxinjector
-!/bin/proxinjector/README.md
+/bin/proxinject
+!/bin/proxinject/README.md
 
 /config.json5
 /decode_pkg.py

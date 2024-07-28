@@ -1,39 +1,56 @@
-export type ServerInfoResData = {
-    server: {
-        wsUrl: string,
-        clientWsUrls: ClientConnectUrlInfo[],
-    },
+import { CoyoteGameConfig } from "../types/CoyoteGameConfig";
+
+export type GameConfigResData = {
+    gameConfig: CoyoteGameConfig,
 };
 
-export type ClientConnectUrlInfo = {
-    domain: string;
-    connectUrl: string;
-};
-
-export type ClientConnectInfoResData = {
-    clientId: string,
-};
-
-export type ApiResponse<T> = {
+export type ApiResponse<T = {}> = {
     status: number,
     message?: string,
-} & T;
+    errors?: string[],
+} & Partial<T>;
 
 export const webApi = {
-    getServerInfo: async (): Promise<ApiResponse<ServerInfoResData> | null> => {
+    loadConfig: async (): Promise<ApiResponse<GameConfigResData> | null> => {
         try {
-            const response = await fetch('/api/server_info');
-            return response.json();
+            const response = await fetch('/api/game_config');
+            
+            const responseText = await response.text();
+
+            if (responseText[0] === '{') {
+                return JSON.parse(responseText);
+            } else {
+                return {
+                    status: 0,
+                    message: responseText,
+                };
+            }
         }
         catch (error) {
             console.error('Failed to get server info:', error);
             return null;
         }
     },
-    getClientConnectInfo: async (): Promise<ApiResponse<ClientConnectInfoResData> | null> => {
+    updateConfig: async (config: CoyoteGameConfig): Promise<ApiResponse | null> => {
         try {
-            const response = await fetch('/api/client/connect');
-            return response.json();
+            const response = await fetch('/api/game_config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ gameConfig: config }),
+            });
+            
+            const responseText = await response.text();
+            
+            if (responseText[0] === '{') {
+                return JSON.parse(responseText);
+            } else {
+                return {
+                    status: 0,
+                    message: responseText,
+                };
+            }
         }
         catch (error) {
             console.error('Failed to get client connect info:', error);

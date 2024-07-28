@@ -69,7 +69,7 @@ export class CoyoteController {
     public fireEndTime: number = -1;
 
     // 一键开火Task
-    public fireTask: NodeJS.Timer | null = null;
+    public fireTask: NodeJS.Timeout | null = null;
 
     public constructor(majsoulGame: MajsoulGameController, playerInfo: GamePlayerInfo, config: CoyoteGameConfig) {
         this.majsoulGame = majsoulGame;

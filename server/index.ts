@@ -1,6 +1,8 @@
 import { existsSync, copyFileSync } from 'fs'
 import Koa from 'koa'
 import cors from '@koa/cors'
+import koaBody from 'koa-body'
+import serveStatic from 'koa-static'
 import Router from 'koa-router'
 import logger from './logger'
 import UI from './UI'
@@ -12,6 +14,7 @@ import { Game, GamePlayerInfo } from './gameRecords/Game'
 import { MajsoulMitmServer } from './mitm/MajsoulMitmServer'
 import { ProxyInjector } from './mitm/ProxyInjector'
 import { SchemaInvalidError, validator } from './utils/validator'
+import deepcopy from 'deepcopy'
 
 if (!existsSync('config.json5')) {
   copyFileSync('config-example.json5', 'config.json5')
@@ -76,6 +79,10 @@ config.on('change', (newConfig) => {
   logger.info('[Config] 更新配置')
   updateCoyoteGameConfig()
 })
+config.on('saved', () => {
+  logger.info('[Config] 更新配置')
+  updateCoyoteGameConfig()
+})
 
 majsoulGame.on('startGame', (game) => {
   logger.info('[MajsoulGameController] 游戏开始')
@@ -133,9 +140,58 @@ router.post('/api/event', async function (ctx, next) {
   await next()
 })
 
+// 配置文件API
+router.get('/api/game_config', async function (ctx, next) {
+  ctx.body = {
+    status: 1,
+    gameConfig: config.value.coyote,
+  }
+
+  await next()
+})
+
+router.post('/api/game_config', async function (ctx, next) {
+  const data = ctx.request.body
+
+  if (!data || !data.gameConfig) {
+    ctx.body = {
+      status: 0,
+      message: 'Invalid request'
+    }
+    ctx.status = 400
+    return
+  }
+
+  let newConfig = deepcopy(config.value)
+  newConfig.coyote = data.gameConfig
+
+  // validate
+  if (!validator.validateConfig(newConfig)) {
+    ctx.body = {
+      status: 0,
+      message: 'Invalid config',
+      errors: validator.validateConfig.errors
+    }
+    return
+  }
+
+  config.value = newConfig
+  config.lazySave()
+
+  ctx.body = {
+    status: 1,
+    message: 'Config updated'
+  }
+
+  await next()
+})
+
 app
   .use(cors())
-  .use(router.routes()).use(router.allowedMethods())
+  .use(serveStatic('frontend/dist'))
+  .use(koaBody())
+  .use(router.routes())
+  .use(router.allowedMethods())
 
 process.on('uncaughtException', function (err) {
   console.error(err)
@@ -153,6 +209,7 @@ async function main() {
     UI.clear()
     logger.info('<server-base> Socks5 MITM started at port 56555')
     logger.info('<server-base> Server started at port 56556')
+    logger.info('<server-base> Config dashboard: http://127.0.0.1:56556')
     proxyInjector.run()
   })
 }

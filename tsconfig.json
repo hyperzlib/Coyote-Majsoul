@@ -8,6 +8,7 @@
     "node_modules"
   ],
   "compilerOptions": {
+    "strict": true,
     "target": "ES2015",
     "outDir": "dist-server",
     "isolatedModules": true,

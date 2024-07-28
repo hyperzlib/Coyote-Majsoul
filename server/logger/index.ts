@@ -1,11 +1,11 @@
 import winston from 'winston'
-import path from 'path'
+import { existsSync } from 'fs'
 
 const logger = winston.createLogger({
   transports: [
     new winston.transports.File({
-      level: 'debug',
-      filename: path.resolve(__dirname, '../../logs/server.log'),
+      level: existsSync('.debug') ? 'debug' : 'info',
+      filename: 'logs/server.log',
       format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.simple()

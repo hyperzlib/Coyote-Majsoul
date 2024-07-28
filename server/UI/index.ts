@@ -1,5 +1,5 @@
 const UI = {
-  print (...msgs) {
+  print (...msgs: any[]) {
     console.info(...msgs)
   },
   clear () {

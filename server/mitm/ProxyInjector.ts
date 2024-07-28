@@ -3,7 +3,7 @@ import { existsSync } from 'fs';
 import logger from '../logger';
 import { asleep } from '../utils/helper';
 
-const INJECTOR_EXE = 'bin/proxinjector/proxinjector-cli.exe';
+const INJECTOR_EXE = 'bin/proxinject/proxinjector-cli.exe';
 const START_IN_NEW_CONSOLE = false;
 
 export class ProxyInjector {
@@ -19,7 +19,7 @@ export class ProxyInjector {
 
     public async run() {
         if (!existsSync(INJECTOR_EXE)) {
-            logger.warn('<ProxyInjector> proxinjector-cli.exe 未找到，请从 https://github.com/PragmaTwice/proxinject 下载后放到 bin/proxinjector 目录下');
+            logger.warn('<ProxyInjector> proxinject-cli.exe 未找到，请从 https://github.com/PragmaTwice/proxinject 下载后放到 bin/proxinject 目录下');
             return;
         }
 
