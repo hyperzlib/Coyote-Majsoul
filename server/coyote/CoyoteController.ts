@@ -38,6 +38,11 @@ export type SetStrengthConfigRequest = {
     },
 };
 
+export type FireRequest = {
+    strength: number;
+    time: number;
+};
+
 export type SetStrengthConfigResponse = {
     status: number,
     code: string,
@@ -61,15 +66,6 @@ export class CoyoteController {
 
     private isRiichi: boolean = false;
     private isRon: boolean = false;
-
-    // 一键开火强度
-    public fireStrength: number = 0;
-
-    // 一键开火结束时间
-    public fireEndTime: number = -1;
-
-    // 一键开火Task
-    public fireTask: NodeJS.Timeout | null = null;
 
     public constructor(majsoulGame: MajsoulGameController, playerInfo: GamePlayerInfo, config: CoyoteGameConfig) {
         this.majsoulGame = majsoulGame;
@@ -196,7 +192,10 @@ export class CoyoteController {
                 },
             });
         } else if (typeof action.fire === 'number') {
-            this.doFireAction(action);
+            this.callCoyoteGameFireApi({
+                strength: action.fire,
+                time: action.time ? action.time * 1000 : 5000,
+            });
         }
     }
 
@@ -226,89 +225,30 @@ export class CoyoteController {
         logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${url}`);
     }
 
-    private async getStrengthConfig(): Promise<GameStrengthConfig | undefined> {
-        let url = `${this.config.controllerUrl}/api/game/${this.config.targetClientId}/strength_config`;
+    private async callCoyoteGameFireApi(request: FireRequest): Promise<string | undefined> {
+        let url = `${this.config.controllerUrl}/api/game/${this.config.targetClientId}/fire`;
         for (let i = 0; i < 3; i ++) {
             try {
-                const res = await got.get(url).json<GetStrengthConfigResponse>();
+                const res = await got.post(url, {
+                    json: request,
+                }).json<SetStrengthConfigResponse>();
+
                 if (res.status !== 1) {
-                    logger.error(`[CoyoteController] 获取强度配置失败: ${res.message}`);
+                    logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${res.message}`);
                 }
 
-                return res.strengthConfig;
+                return res.successClientIds[0];
             } catch (err: any) {
-                logger.error(`[CoyoteController] 获取强度配置失败: ${err.message}`);
+                logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${err.message}`);
                 if (err.response) {
                     logger.error('Response: ', err.response.body);
                 }
+
+                await asleep(200);
             }
         }
 
-        logger.error(`[CoyoteController] 获取强度配置失败: ${url}`);
-    }
-
-    private async doFireAction(action: CoyoteAction) {
-        const fireTime = typeof action.time === 'number' ? action.time : 5;
-
-        if (this.fireTask) {
-            this.fireEndTime += fireTime * 1000;
-        } else {
-            this.fireEndTime = Date.now() + fireTime * 1000;
-            this.fireTask = setInterval(this.fireTaskHandler.bind(this), 100);
-        }
-
-        let remoteConfig: GameStrengthConfig | undefined = await this.getStrengthConfig();
-        if (!remoteConfig) {
-            logger.error('获取强度配置失败');
-            this.fireStrength = 0;
-            return;
-        }
-
-        let remoteStrength = remoteConfig.strength;
-        /** 同时多次一键开火，取最大的电量 */
-        let maxFireStrength = Math.max(this.fireStrength, action.fire!);
-        /** 增加的电量 */
-        let addStrength = maxFireStrength - this.fireStrength;
-        
-        if (addStrength > 0) {
-            logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 一键开火强度：${addStrength}`);
-
-            await this.callCoyoteGameApi({
-                strength: {
-                    add: addStrength,
-                },
-            });
-
-            remoteConfig = await this.getStrengthConfig();
-            if (!remoteConfig) {
-                logger.error('获取强度配置失败');
-                return;
-            }
-
-            // 计算真实的增加强度
-            let realAddStrength = remoteConfig.strength - remoteStrength;
-            this.fireStrength += realAddStrength;
-        }
-    }
-
-    private fireTaskHandler() {
-        const currentTime = Date.now();
-        if (this.fireEndTime < currentTime) {
-            // 结束一键开火
-            logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 一键开火结束`);
-            if (this.fireStrength > 0) {
-                this.callCoyoteGameApi({
-                    strength: {
-                        sub: this.fireStrength,
-                    },
-                });
-            }
-            this.fireStrength = 0;
-            if (this.fireTask) {
-                clearInterval(this.fireTask);
-                this.fireTask = null;
-            }
-        }
+        logger.error(`[CoyoteController] 调用郊狼控制器API失败: ${url}`);
     }
 
     private onZhongJu(result: MajsoulGameResult) {

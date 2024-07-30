@@ -24,7 +24,7 @@ const state = reactive({
 });
 
 const emit = defineEmits<{
-  (name: 'confirm', playerSelector: any): void,
+  confirm: [playerSelector: any]
 }>();
 
 const reset = () => {
