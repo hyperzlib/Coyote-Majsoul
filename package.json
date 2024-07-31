@@ -10,7 +10,7 @@
     "build:frontend": "cd frontend && npm run build",
     "build:schema": "node cli/build-schema.js",
     "build:server": "npm run build:schema && tsc -p tsconfig.node.json && shx cp -r server/schemas dist-server",
-    "build:pkg:assets": "shx mkdir -p build/frontend && shx cp -r frontend/dist build/frontend/dist && shx cp config-example.json5 build && shx cp README.md build && shx cp LICENSE build && shx cp -r build-res/* build",
+    "build:pkg:assets": "shx mkdir -p build/frontend && shx cp -r frontend/dist build/frontend/dist && shx cp config-example.json5 build && shx cp README.md build && shx cp LICENSE build && shx cp -r build-assets/* build",
     "build:pkg:win": "pkg . -t node18-win-x64 --out-path=build",
     "build:pkg:linux": "pkg . -t node18-linux-x64 --out-path=build",
     "build:pkg:clean": "shx rm -rf build",
