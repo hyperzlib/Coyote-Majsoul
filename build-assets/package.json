@@ -1,0 +1,28 @@
+{
+    "name": "coyote-majsoul",
+    "version": "1.0.0",
+    "author": "Hyperzlib",
+    "license": "AGPL-3.0-or-later",
+    "bin": "index.js",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "@hyperzlib/node-reactive-config": "^1.0.1",
+      "@koa/cors": "^5.0.0",
+      "@pondwader/socks5-server": "^1.0.10",
+      "ajv": "^8.17.1",
+      "deepcopy": "^2.1.0",
+      "eventemitter2": "^6.4.7",
+      "got": "^11.8.6",
+      "json5": "^2.2.3",
+      "koa": "^2.15.3",
+      "koa-body": "^6.0.1",
+      "koa-router": "^12.0.0",
+      "koa-static": "^5.0.0",
+      "protobufjs": "^7.2.4",
+      "winston": "^3.10.0",
+      "yaml": "^2.4.5"
+    }
+}
