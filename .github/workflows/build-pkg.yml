@@ -46,6 +46,8 @@ jobs:
       run: npm run build:server --if-present
     - name: Build pkg assets
       run: npm run build:pkg:assets
+    - name: Build nodejs server
+      run: npm run build:pkg:nodejs
     - name: Archive server
       uses: actions/upload-artifact@v4
       with:
@@ -53,7 +55,7 @@ jobs:
         path: |
           build
     - name: Re-build pkg assets
-      run: npm run clean && npm run build:pkg:assets
+      run: npm run build:pkg:clean && npm run build:pkg:assets
     - name: Download proxinject
       uses: robinraju/release-downloader@v1
       with:
