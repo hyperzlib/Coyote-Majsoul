@@ -44,6 +44,14 @@ jobs:
           dist
     - name: Build server
       run: npm run build:server --if-present
+    - name: Build pkg assets
+      run: npm run build:pkg:assets
+    - name: Archive server
+      uses: actions/upload-artifact@v4
+      with:
+        name: majsoul-analyser-nodejs-server
+        path: |
+          build
     - name: Download proxinject
       uses: robinraju/release-downloader@v1
       with:
@@ -56,7 +64,7 @@ jobs:
     - name: Copy proxinject
       run: mkdir -p build/bin/proxyinject && cp -r proxinject/release build/bin/proxinject
     - name: Build Windows executable
-      run: npm run build:pkg:assets && npm run build:pkg:win
+      run: npm run build:pkg:win
     - name: Move Files to artifact dir
       run: mkdir -p artifacts && mv build artifacts/coyote-majsoul
     - name: Archive Windows artifact
