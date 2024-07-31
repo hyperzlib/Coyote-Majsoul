@@ -52,6 +52,8 @@ jobs:
         name: majsoul-analyser-nodejs-server
         path: |
           build
+    - name: Re-build pkg assets
+      run: npm run clean && npm run build:pkg:assets
     - name: Download proxinject
       uses: robinraju/release-downloader@v1
       with:
