@@ -51,7 +51,7 @@ jobs:
     - name: Archive server
       uses: actions/upload-artifact@v4
       with:
-        name: majsoul-analyser-nodejs-server
+        name: coyote-majsoul-nodejs-server
         path: |
           build
     - name: Re-build pkg assets
