@@ -15,6 +15,7 @@ import { MajsoulMitmServer } from './mitm/MajsoulMitmServer'
 import { ProxyInjector } from './mitm/ProxyInjector'
 import { SchemaInvalidError, validator } from './utils/validator'
 import deepcopy from 'deepcopy'
+import { checkUpdate } from './utils/checkUpdate'
 
 if (!existsSync('config.json5')) {
   copyFileSync('config-example.json5', 'config.json5')
@@ -198,6 +199,8 @@ process.on('uncaughtException', function (err) {
   logger.error(`<server-base> Server service shutdown: ${err.message}`)
   process.exit(1)
 })
+
+checkUpdate().catch((err) => console.error('检查更新失败（可忽略）：', err))
 
 async function main() {
   await validator.initialize()

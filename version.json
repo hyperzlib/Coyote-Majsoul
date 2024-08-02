@@ -1,0 +1,10 @@
+{
+    "repo": "hyperzlib/Coyote-Majsoul",
+    "version": "1.3.0",
+    "description": "1. 增加更新检测功能",
+    "releaseFile": {
+        "windows": "coyote-majsoul-windows-amd64-dist.zip",
+        "linux": "coyote-majsoul-nodejs-server.zip",
+        "mac": "coyote-majsoul-nodejs-server.zip"
+    }
+}
