@@ -97,13 +97,17 @@ export class CoyoteController {
         const majsoulGameEvents = this.eventStore.wrap(this.majsoulGame);
 
         majsoulGameEvents.on('newRound', () => {
+            logger.debug(`<event> newRound`);
+            logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 开始新对局`);
             this.isRiichi = false;
-            this.isRon = false; 
+            this.isRon = false;
         });
 
         majsoulGameEvents.on('mingpai', (seat, targetSeat) => {
+            logger.debug(`<event> mingpai: ${seat} ${targetSeat}`);
             if (seat !== this.targetPlayer.seat && targetSeat === this.targetPlayer.seat) {
                 // 被吃碰杠
+                logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 被吃碰杠`);
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.mingpai);
                 }, 1000); // 延迟1s后更改强度
@@ -111,10 +115,12 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('riichi', (seat) => {
+            logger.debug(`<event> riichi: ${seat}`);
             if (seat === this.targetPlayer.seat) {
                 // 自家立直
                 this.isRiichi = true;
             } else if (!this.isRiichi) {
+                logger.info(`[CoyoteController] 别家立直`);
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.biejializhi);
                 }, 1000); // 延迟1s后更改强度
@@ -122,11 +128,13 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('ron', (seat, targetSeat) => {
+            logger.debug(`<event> ron: ${seat} ${targetSeat}`);
             if (seat === this.targetPlayer.seat) {
                 // 自家和牌
                 this.isRon = true;
             } else if (!this.isRon && targetSeat === this.targetPlayer.seat) {
                 // 点炮
+                logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 点炮`);
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.dianpao);
                 }, 1000); // 延迟1s后更改强度
@@ -134,11 +142,13 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('zumo', (seat) => {
+            logger.debug(`<event> zumo: ${seat}`);
             if (seat === this.targetPlayer.seat) {
                 // 自摸
                 this.isRon = true;
             } else if (!this.isRon) {
                 // 别家自摸
+                logger.info(`[CoyoteController] 别家自摸`);
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.biejiazimo);
                 }, 1000); // 延迟1s后更改强度
@@ -146,6 +156,7 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('liuju', (tingSeat) => {
+            logger.debug(`<event> liuju: ${tingSeat.join(', ')}`);
             if (tingSeat.includes(this.targetPlayer.seat)) {
                 // 听牌流局
                 this.doCoyoteAction(this.config.tingpailiuju);
@@ -156,6 +167,7 @@ export class CoyoteController {
         });
 
         majsoulGameEvents.on('zhongju', (result) => {
+            logger.debug(`<event> zhongju`);
             this.onZhongJu(result);
         });
     }
@@ -192,6 +204,7 @@ export class CoyoteController {
                 },
             });
         } else if (typeof action.fire === 'number') {
+            logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 一键开火强度：${action.fire}`);
             this.callCoyoteGameFireApi({
                 strength: action.fire,
                 time: action.time ? action.time * 1000 : 5000,
