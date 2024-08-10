@@ -63,6 +63,17 @@
                     ],
                     "description": "被吃碰杠时"
                 },
+                "hule": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/definitions/CoyoteAction"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "自家和牌时"
+                },
                 "dianpao": {
                     "anyOf": [
                         {

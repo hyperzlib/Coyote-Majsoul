@@ -20,6 +20,8 @@ export type CoyoteGameConfigItem = {
     targetClientId: string,
     /** 被吃碰杠时 */
     mingpai?: CoyoteAction | null,
+    /** 自家和牌时 */
+    hule?: CoyoteAction | null,
     /** 点炮时 */
     dianpao?: CoyoteAction | null,
     /** 别家自摸时 */

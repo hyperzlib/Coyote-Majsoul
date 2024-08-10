@@ -132,6 +132,9 @@ export class CoyoteController {
             if (seat === this.targetPlayer.seat) {
                 // 自家和牌
                 this.isRon = true;
+                setTimeout(() => {
+                    this.doCoyoteAction(this.config.hule);
+                });
             } else if (!this.isRon && targetSeat === this.targetPlayer.seat) {
                 // 点炮
                 logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 点炮`);
