@@ -1,7 +1,7 @@
 {
     "repo": "hyperzlib/Coyote-Majsoul",
-    "version": "1.3.0",
-    "description": "1. 增加更新检测功能",
+    "version": "1.4.2",
+    "description": "1. 增加自家和牌事件",
     "releaseFile": {
         "windows": "coyote-majsoul-windows-amd64-dist.zip",
         "linux": "coyote-majsoul-nodejs-server.zip",
