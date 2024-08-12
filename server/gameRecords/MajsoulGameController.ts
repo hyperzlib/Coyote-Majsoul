@@ -1,9 +1,22 @@
 import EventEmitter2 from "eventemitter2";
-import { ActionBaBei, ActionChiPengGang, ActionDealTile, ActionDiscardTile, ActionHule, ActionHuleXueZhanMid, ActionNoTile, NotifyGameEndResult, ParsedMajsoulJSON, ResAuthGame } from "../types/ParsedMajsoulJSON";
+import {
+    ActionBaBei,
+    ActionChiPengGang,
+    ActionDealTile,
+    ActionDiscardTile,
+    ActionHule,
+    ActionHuleXueZhanMid,
+    ActionNewRound,
+    ActionNoTile,
+    NotifyGameEndResult,
+    ParsedMajsoulJSON,
+    ResAuthGame
+} from "../types/ParsedMajsoulJSON";
 import { Game } from "./Game";
 import { parseResBufferMsg } from "../majsoul/parseResBufferMsg";
 import { parseReqBufferMsg } from "../majsoul/parseReqBufferMsg";
 import logger from "../logger";
+import {Tile} from "../types/General";
 
 export type MajsoulGameResult = {
     seat: number,
@@ -13,9 +26,10 @@ export type MajsoulGameResult = {
 
 export type MajsoulGameEventListener = {
     (name: 'startGame', cb: (game: Game) => void): void;
-    (name: 'newRound', cb: () => void): void;
-    (name: 'turn', cb: (seat: number) => void): void;
-    (name: 'riichi', cb: (seat: number) => void): void;
+    (name: 'newRound', cb: (dora: Tile[], playerCount: number) => void): void;
+    (name: 'turn', cb: (seat: number, dora: Tile[]) => void): void;
+    (name: 'riichi', cb: (seat: number, tile: Tile) => void): void;
+    (name: 'chupai', cb: (seat: number, tile: Tile, dora: Tile[]) => void): void;
     (name: 'mingpai', cb: (seat: number, targetSeat: number | null) => void): void;
     (name: 'ron', cb: (seat: number, targetSeat: number | null, score: number) => void): void;
     (name: 'zumo', cb: (seat: number, score: number) => void): void;
@@ -111,17 +125,20 @@ export class MajsoulGameController {
                     switch (pkg.data.name) {
                         case 'ActionNewRound': // 新一局开始
                             this.clear();
-                            this.events.emit('newRound');
+                            const data = pkg.data.data as unknown as ActionNewRound;
+                            this.events.emit('newRound', data.doras, data.scores.length);
                             break;
                         case 'ActionDealTile': { // 摸牌
                             const data = pkg.data.data as unknown as ActionDealTile;
-                            this.events.emit('turn', data.seat);
+                            this.events.emit('turn', data.seat, data.doras);
                             break;
                         }
                         case 'ActionDiscardTile': { // 出牌
                             const data = pkg.data.data as unknown as ActionDiscardTile;
                             if (data.is_liqi || data.is_wliqi) { // 立直
-                                this.events.emit('riichi', data.seat);
+                                this.events.emit('riichi', data.tile ,data.seat);
+                            }else{
+                                this.events.emit('chupai', data.tile ,data.doras);
                             }
                             break;
                         }

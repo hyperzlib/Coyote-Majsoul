@@ -1,11 +1,19 @@
-import { Tile } from '../types/General'
+import {Tile} from '../types/General'
 
-function nextTile (tile: Tile): Tile {
-  if (tile.endsWith('z')) {
-    return String((+tile[0] % 7) + 1) + tile[1] as Tile
-  } else {
-    return String((+tile[0] % 9) + 1) + tile[1] as Tile
-  }
+function nextTile(tile: Tile, playerCount: number): Tile {
+    if (tile.endsWith('z')) {
+        if (Number(tile[0]) <= 4) {
+            return String((Number(tile[0]) % 4) + 1) + 'z' as Tile
+        } else {
+            return String(((Number(tile[0]) - 4) % 3) + 5) + 'z' as Tile
+        }
+    } else if (tile.startsWith('0')) {
+        return '6' + tile[1] as Tile
+    } else if (playerCount === 3 && tile.endsWith('m')) {
+        return (tile[0] === '1' ? '9' : '1') + 'm' as Tile
+    } else {
+        return String((Number(tile[0]) % 9) + 1) + tile[1] as Tile
+    }
 }
 
-export { nextTile }
+export {nextTile}

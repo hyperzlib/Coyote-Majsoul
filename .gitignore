@@ -18,3 +18,4 @@ server/analyser/analyser-local-*/
 
 server/test-*.ts
 .debug
+.idea

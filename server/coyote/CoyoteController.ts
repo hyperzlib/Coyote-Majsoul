@@ -5,6 +5,8 @@ import logger from "../logger";
 import { EventStore } from "../utils/EventStore";
 import { CoyoteAction, CoyoteGameConfig, CoyoteGameConfigItem } from "../types/CoyoteGameConfig";
 import { asleep } from "../utils/helper";
+import {nextTile} from "../utils/nextTile";
+import {Tile} from "../types/General";
 
 export interface GameStrengthConfig {
     strength: number;
@@ -66,6 +68,8 @@ export class CoyoteController {
 
     private isRiichi: boolean = false;
     private isRon: boolean = false;
+    private dora: Tile[] = [];
+    private playerCount: number = 4;
 
     public constructor(majsoulGame: MajsoulGameController, playerInfo: GamePlayerInfo, config: CoyoteGameConfig) {
         this.majsoulGame = majsoulGame;
@@ -96,11 +100,38 @@ export class CoyoteController {
     private bindEvents() {
         const majsoulGameEvents = this.eventStore.wrap(this.majsoulGame);
 
-        majsoulGameEvents.on('newRound', () => {
+        majsoulGameEvents.on('newRound', (dora, playerCount) => {
             logger.debug(`<event> newRound`);
             logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 开始新对局`);
             this.isRiichi = false;
             this.isRon = false;
+            this.dora = dora;
+            this.playerCount = playerCount;
+        });
+
+        majsoulGameEvents.on('turn', (seat, dora) => {
+            if(dora){
+                this.dora = dora;
+            }
+        });
+
+        majsoulGameEvents.on('chupai', (seat, tile, dora) => {
+            if (seat === this.targetPlayer.seat) {
+                let isDora = tile.startsWith('0');
+                this.dora.forEach(t =>{
+                    if (tile === nextTile(t, this.playerCount)){
+                        isDora = true;
+                    }
+                });
+                if (isDora){
+                    setTimeout(() => {
+                        this.doCoyoteAction(this.config.dabao);
+                    }, 500); // 延迟0.5s后更改强度
+                }
+            }
+            if(dora){
+                this.dora = dora;
+            }
         });
 
         majsoulGameEvents.on('mingpai', (seat, targetSeat) => {
@@ -114,11 +145,22 @@ export class CoyoteController {
             }
         });
 
-        majsoulGameEvents.on('riichi', (seat) => {
+        majsoulGameEvents.on('riichi', (seat, tile) => {
             logger.debug(`<event> riichi: ${seat}`);
             if (seat === this.targetPlayer.seat) {
                 // 自家立直
                 this.isRiichi = true;
+                let isDora = tile.startsWith('0');
+                this.dora.forEach(t =>{
+                    if (tile === nextTile(t, this.playerCount)){
+                        isDora = true;
+                    }
+                });
+                if (isDora) {
+                    setTimeout(() => {
+                        this.doCoyoteAction(this.config.dabao);
+                    }, 500); // 延迟0.5s后更改强度
+                }
             } else if (!this.isRiichi) {
                 logger.info(`[CoyoteController] 别家立直`);
                 setTimeout(() => {
@@ -132,9 +174,10 @@ export class CoyoteController {
             if (seat === this.targetPlayer.seat) {
                 // 自家和牌
                 this.isRon = true;
+                logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 荣和`);
                 setTimeout(() => {
                     this.doCoyoteAction(this.config.hule);
-                });
+                }, 1000); // 延迟1s后更改强度
             } else if (!this.isRon && targetSeat === this.targetPlayer.seat) {
                 // 点炮
                 logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 点炮`);
@@ -149,6 +192,10 @@ export class CoyoteController {
             if (seat === this.targetPlayer.seat) {
                 // 自摸
                 this.isRon = true;
+                logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 自摸`);
+                setTimeout(() => {
+                    this.doCoyoteAction(this.config.hule);
+                }, 1000); // 延迟1s后更改强度
             } else if (!this.isRon) {
                 // 别家自摸
                 logger.info(`[CoyoteController] 别家自摸`);
