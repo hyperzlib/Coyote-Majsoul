@@ -22,6 +22,8 @@ export type CoyoteGameConfigItem = {
     mingpai?: CoyoteAction | null,
     /** 自家和牌时 */
     hule?: CoyoteAction | null,
+    /** 打宝牌时 */
+    dabao?: CoyoteAction | null,
     /** 点炮时 */
     dianpao?: CoyoteAction | null,
     /** 别家自摸时 */

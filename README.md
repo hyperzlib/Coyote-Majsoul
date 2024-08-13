@@ -31,6 +31,22 @@
 npm install
 ```
 
+```bash
+cd frontend
+npm install
+```
+
+```bash
+cd server
+npm install
+```
+
+构建项目，推荐使用 PNPM，为了兼容性，以下示例仍使用 NPM：
+
+```bash
+npm build
+```
+
 **仅限Windows:** 下载 **[proxinject](https://github.com/PragmaTwice/proxinject/releases)**，解压后放在 ```bin/proxinject``` 目录下。（如果不需要使用Windows Steam 雀魂，可以跳过）
 
 Linux和MacOS需要使用proxychains，总之需要让雀魂客户端通过socks5代理连接到服务器。

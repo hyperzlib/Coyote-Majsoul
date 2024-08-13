@@ -30,6 +30,7 @@ const state = reactive({
         targetClientId: '',
 
         hule: null as any,
+        dabao: null as any,
         mingpai: null as any,
         dianpao: null as any,
         biejiazimo: null as any,
@@ -189,6 +190,10 @@ watch(() => state.confChanged, (value) => {
     <div class="w-full flex flex-col md:flex-row items-top lg:items-center gap-2 lg:gap-8 mb-8 lg:mb-4">
         <label class="font-semibold w-30">和牌</label>
         <CoyoteActionInput v-model="state.conf.hule" :disabled="props.disabled" />
+    </div>
+    <div class="w-full flex flex-col md:flex-row items-top lg:items-center gap-2 lg:gap-8 mb-8 lg:mb-4">
+        <label class="font-semibold w-30">打宝牌</label>
+        <CoyoteActionInput v-model="state.conf.dabao" :disabled="props.disabled" />
     </div>
     <div class="w-full flex flex-col md:flex-row items-top lg:items-center gap-2 lg:gap-8 mb-8 lg:mb-4">
         <label class="font-semibold w-30">被吃碰杠</label>
