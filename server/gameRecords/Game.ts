@@ -14,9 +14,11 @@ export class Game {
   public meSeat: number; // 0 | 1 | 2 | 3
   public players: GamePlayerInfo[];
   public seatPlayerMap: Map<number, GamePlayerInfo> = new Map();
+  public playerCount: number = 4;
 
-  public constructor(players: any[], seatList: number[], meAccountId: number) {
+  public constructor(players: any[], seatList: number[], meAccountId: number, playerCount: number) {
     this.meSeat = seatList.indexOf(meAccountId);
+    this.playerCount = playerCount;
 
     this.players = players.map((player, index) => {
       return {

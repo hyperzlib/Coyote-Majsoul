@@ -17,6 +17,7 @@ import { parseResBufferMsg } from "../majsoul/parseResBufferMsg";
 import { parseReqBufferMsg } from "../majsoul/parseReqBufferMsg";
 import logger from "../logger";
 import {Tile} from "../types/General";
+import { nextTile } from "../utils/nextTile";
 
 export type MajsoulGameResult = {
     seat: number,
@@ -26,10 +27,10 @@ export type MajsoulGameResult = {
 
 export type MajsoulGameEventListener = {
     (name: 'startGame', cb: (game: Game) => void): void;
-    (name: 'newRound', cb: (dora: Tile[], playerCount: number) => void): void;
-    (name: 'turn', cb: (seat: number, dora: Tile[]) => void): void;
+    (name: 'newRound', cb: (playerCount: number) => void): void;
+    (name: 'turn', cb: (seat: number) => void): void;
     (name: 'riichi', cb: (seat: number, tile: Tile) => void): void;
-    (name: 'chupai', cb: (seat: number, tile: Tile, dora: Tile[]) => void): void;
+    (name: 'chupai', cb: (seat: number, tile: Tile, isDora: boolean) => void): void;
     (name: 'mingpai', cb: (seat: number, targetSeat: number | null) => void): void;
     (name: 'ron', cb: (seat: number, targetSeat: number | null, score: number) => void): void;
     (name: 'zumo', cb: (seat: number, score: number) => void): void;
@@ -39,6 +40,7 @@ export type MajsoulGameEventListener = {
 
 export class MajsoulGameController {
     public pkgList: ParsedMajsoulJSON[] = [];
+    public doras: Tile[] = [];
 
     public game: Game | null = null;
     public requestQueue: Map<number, { resName: string }> = new Map();
@@ -51,6 +53,7 @@ export class MajsoulGameController {
 
     clear() {
         this.pkgList = [];
+        this.doras = [];
     }
 
     public on: MajsoulGameEventListener = this.events.on.bind(this.events);
@@ -90,6 +93,16 @@ export class MajsoulGameController {
         return null;
     }
 
+    private setDoraSign(doraSign: Tile[]) {
+        if (doraSign.length === this.doras.length) {
+            return;
+        }
+
+        this.doras = doraSign.map((sign) => {
+            return nextTile(sign, this.game?.playerCount || 4);
+        });
+    }
+
     onReqPackage(buf: Buffer) {
         try {
             const msgList = parseReqBufferMsg(buf);
@@ -126,20 +139,41 @@ export class MajsoulGameController {
                         case 'ActionNewRound': // 新一局开始
                             this.clear();
                             const data = pkg.data.data as unknown as ActionNewRound;
-                            this.events.emit('newRound', data.doras, data.scores.length);
+                            this.events.emit('newRound', data.scores.length);
+                            this.setDoraSign(data.doras);
                             break;
                         case 'ActionDealTile': { // 摸牌
                             const data = pkg.data.data as unknown as ActionDealTile;
-                            this.events.emit('turn', data.seat, data.doras);
+                            
+                            if (data.doras.length) {
+                                this.setDoraSign(data.doras);
+                            }
+
+                            this.events.emit('turn', data.seat);
                             break;
                         }
                         case 'ActionDiscardTile': { // 出牌
                             const data = pkg.data.data as unknown as ActionDiscardTile;
                             if (data.is_liqi || data.is_wliqi) { // 立直
-                                this.events.emit('riichi', data.tile ,data.seat);
-                            }else{
-                                this.events.emit('chupai', data.tile ,data.doras);
+                                this.events.emit('riichi', data.seat, data.tile);
                             }
+
+                            let isDora = this.doras.includes(data.tile);
+                            this.events.emit('chupai', data.seat, data.tile, isDora);
+
+                            if (data.doras.length) {
+                                this.setDoraSign(data.doras);
+                            }
+
+                            break;
+                        }
+                        case 'ActionBaBei': { // 拔北
+                            const data = pkg.data.data as unknown as ActionBaBei;
+
+                            if (data.doras.length) {
+                                this.setDoraSign(data.doras);
+                            }
+
                             break;
                         }
                         case 'ActionChiPengGang': { // 鸣牌
@@ -153,7 +187,20 @@ export class MajsoulGameController {
                                 }
                             }
 
+                            if (data.doras.length) {
+                                this.setDoraSign(data.doras);
+                            }
+
                             this.events.emit('mingpai', data.seat, targetSeat);
+                            break;
+                        }
+                        case 'ActionAnGangAddGang': { // 暗杠加杠
+                            const data = pkg.data.data as unknown as ActionChiPengGang;
+                            
+                            if (data.doras.length) {
+                                this.setDoraSign(data.doras);
+                            }
+
                             break;
                         }
                         case 'ActionHule': {
@@ -214,7 +261,7 @@ export class MajsoulGameController {
                     break;
                 case 'ResAuthGame': {
                     const data = pkg as unknown as ResAuthGame;
-                    this.game = new Game(data.data.players, data.data.seat_list, meId);
+                    this.game = new Game(data.data.players, data.data.seat_list, meId, pkg.data.seat_list.length);
                     this.events.emit('startGame', this.game);
                     break;
                 }

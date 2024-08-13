@@ -68,7 +68,6 @@ export class CoyoteController {
 
     private isRiichi: boolean = false;
     private isRon: boolean = false;
-    private dora: Tile[] = [];
     private playerCount: number = 4;
 
     public constructor(majsoulGame: MajsoulGameController, playerInfo: GamePlayerInfo, config: CoyoteGameConfig) {
@@ -100,37 +99,21 @@ export class CoyoteController {
     private bindEvents() {
         const majsoulGameEvents = this.eventStore.wrap(this.majsoulGame);
 
-        majsoulGameEvents.on('newRound', (dora, playerCount) => {
+        majsoulGameEvents.on('newRound', (playerCount) => {
             logger.debug(`<event> newRound`);
             logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 开始新对局`);
             this.isRiichi = false;
             this.isRon = false;
-            this.dora = dora;
             this.playerCount = playerCount;
         });
 
-        majsoulGameEvents.on('turn', (seat, dora) => {
-            if(dora){
-                this.dora = dora;
-            }
-        });
-
-        majsoulGameEvents.on('chupai', (seat, tile, dora) => {
+        majsoulGameEvents.on('chupai', (seat, tile, isDora) => {
             if (seat === this.targetPlayer.seat) {
-                let isDora = tile.startsWith('0');
-                this.dora.forEach(t =>{
-                    if (tile === nextTile(t, this.playerCount)){
-                        isDora = true;
-                    }
-                });
                 if (isDora){
                     setTimeout(() => {
                         this.doCoyoteAction(this.config.dabao);
                     }, 500); // 延迟0.5s后更改强度
                 }
-            }
-            if(dora){
-                this.dora = dora;
             }
         });
 
@@ -150,17 +133,6 @@ export class CoyoteController {
             if (seat === this.targetPlayer.seat) {
                 // 自家立直
                 this.isRiichi = true;
-                let isDora = tile.startsWith('0');
-                this.dora.forEach(t =>{
-                    if (tile === nextTile(t, this.playerCount)){
-                        isDora = true;
-                    }
-                });
-                if (isDora) {
-                    setTimeout(() => {
-                        this.doCoyoteAction(this.config.dabao);
-                    }, 500); // 延迟0.5s后更改强度
-                }
             } else if (!this.isRiichi) {
                 logger.info(`[CoyoteController] 别家立直`);
                 setTimeout(() => {
