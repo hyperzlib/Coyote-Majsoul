@@ -145,7 +145,7 @@ export class MajsoulGameController {
                         case 'ActionDealTile': { // 摸牌
                             const data = pkg.data.data as unknown as ActionDealTile;
                             
-                            if (data.doras.length) {
+                            if (data.doras?.length) {
                                 this.setDoraSign(data.doras);
                             }
 
@@ -161,7 +161,7 @@ export class MajsoulGameController {
                             let isDora = this.doras.includes(data.tile);
                             this.events.emit('chupai', data.seat, data.tile, isDora);
 
-                            if (data.doras.length) {
+                            if (data.doras?.length) {
                                 this.setDoraSign(data.doras);
                             }
 
@@ -170,7 +170,7 @@ export class MajsoulGameController {
                         case 'ActionBaBei': { // 拔北
                             const data = pkg.data.data as unknown as ActionBaBei;
 
-                            if (data.doras.length) {
+                            if (data.doras?.length) {
                                 this.setDoraSign(data.doras);
                             }
 
@@ -187,7 +187,7 @@ export class MajsoulGameController {
                                 }
                             }
 
-                            if (data.doras.length) {
+                            if (data.doras?.length) {
                                 this.setDoraSign(data.doras);
                             }
 
@@ -197,7 +197,7 @@ export class MajsoulGameController {
                         case 'ActionAnGangAddGang': { // 暗杠加杠
                             const data = pkg.data.data as unknown as ActionChiPengGang;
                             
-                            if (data.doras.length) {
+                            if (data.doras?.length) {
                                 this.setDoraSign(data.doras);
                             }
 

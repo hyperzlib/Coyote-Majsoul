@@ -110,6 +110,7 @@ export class CoyoteController {
         majsoulGameEvents.on('chupai', (seat, tile, isDora) => {
             if (seat === this.targetPlayer.seat) {
                 if (isDora){
+                    logger.info(`[CoyoteController] ${this.targetPlayer.nickname} 打宝牌`);
                     setTimeout(() => {
                         this.doCoyoteAction(this.config.dabao);
                     }, 500); // 延迟0.5s后更改强度
